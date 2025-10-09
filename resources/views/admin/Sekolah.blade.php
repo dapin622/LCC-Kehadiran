@@ -247,6 +247,14 @@ $(document).ready(function () {
                     '</form>'
                 ]).draw(false);
 
+                 if($("#filterRegion option[value='"+school.region+"']").length === 0){
+                    $('#filterRegion').append('<option value="'+school.region+'">'+school.region+'</option>');
+                }
+
+                if($("#filterProvince option[value='"+school.province+"']").length === 0){
+                    $('#filterProvince').append('<option value="'+school.province+'">'+school.province+'</option>');
+                }
+
                 $('#addSchoolForm')[0].reset();
             },
          error: function(xhr){

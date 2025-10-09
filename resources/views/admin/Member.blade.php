@@ -356,7 +356,7 @@
         });
         
 
-    setTimeout(function(){
+        setTimeout(function(){
             $("#sessionAlert").fadeOut(function(){
                 $(this).remove(); 
             });
@@ -422,6 +422,14 @@
                     <form style="display:inline-block;">@csrf @method("DELETE")<button type="submit" class="btn btn-danger btn-sm">Delete</button></form>`
                 ]).draw(false);
 
+                 if($("#filterSchool option[value='"+member.school_name+"']").length === 0){
+                    $('#filterSchool').append('<option value="'+member.school_name+'">'+member.school_name+'</option>');
+                }
+
+                if($("#filterTeam option[value='"+member.team_name+"']").length === 0){
+                    $('#filterTeam').append('<option value="'+member.team_name+'">'+member.team_name+'</option>');
+                }
+                
                 $('#addMemberForm')[0].reset(); 
             },
 

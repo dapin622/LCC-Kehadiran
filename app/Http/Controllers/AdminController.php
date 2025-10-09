@@ -32,9 +32,12 @@ class AdminController extends Controller
         return back()->withErrors(['email' => 'Email atau password salah']);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Session::forget('admin_id');
+        $request->session()->forget('admin_id');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect()->route('login');
     }
 }

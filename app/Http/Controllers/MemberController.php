@@ -76,6 +76,7 @@ class MemberController extends Controller
                 'team_name' => $member->team_name,
                 'class_name' => $member->class_name,
                 'photo' => $member->photo,
+                'qr_code' => $member->qr_code,
                 'qr_code_svg' => $qrCodeSvg,
             ],
         ]);
@@ -135,6 +136,7 @@ class MemberController extends Controller
                     'team_name' => $member->team_name,
                     'class_name' => $member->class_name,
                     'photo' => $member->photo,
+                    'qr_code' => $member->qr_code,
                     'qr_code_svg' => $qrCodeSvg,
                 ],
             ]);
