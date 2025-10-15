@@ -1,5 +1,16 @@
 @extends('layout.app')
+<style>
+    
+.alert-danger ul {
+    list-style-type: none; 
+    padding-left: 0;       
+    margin-bottom: 0;
+}
+.alert-danger li {
+    margin-left: 0;
+}
 
+</style>
 @section('content')
     {{-- Page Header --}}
     <div class="page-header d-print-none">
@@ -114,8 +125,24 @@
                                       
                                         <td>{!! QrCode::size(50)->generate($member->qr_code) !!}</td>
                                         <td>
-                                            <a href="#"
-                                               class="btn btn-info btn-sm">Detail</a>
+                                            <button 
+                                            type="button" 
+                                            class="btn btn-info btn-sm btn-detail"
+                                            data-id="{{ $member->id }}"
+                                            data-name="{{ $member->name }}"
+                                            data-nisn="{{ $member->nisn }}"
+                                            data-gender="{{ $member->gender }}"
+                                            data-school="{{ $member->school->name ?? '-' }}"
+                                            data-team="{{ $member->team_name }}"
+                                            data-class="{{ $member->class_name }}"
+                                            data-region="{{ $member->school->region ?? '-' }}"
+                                            data-photo="{{ $member->photo ? asset('uploads/foto/'.$member->photo) : '' }}"
+                                            data-qr="{{ $member->qr_code }}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#detailMemberModal">
+                                            Detail
+                                        </button>
+
                                             <button 
                                             type="button" 
                                             class="btn btn-warning btn-sm btn-edit"
@@ -148,6 +175,7 @@
                             </table>
                         </div>
 
+            <!-- Add Member -->
                 <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content">
@@ -316,6 +344,61 @@
                     </div>
                 </div>
 
+                <!-- Detail Member -->
+                        <div class="modal fade" id="detailMemberModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Detail Siswa</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6 ">
+                                                <label class="form-label fw-bold">Foto:</label><br>
+                                                <img id="detailPhoto" src="" width="100" height="100" class="rounded border">
+                                            </div>
+                                           
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">NISN:</label>
+                                                <p id="detailNisn"></p>
+                                            </div>
+
+                                             <div class="col-md-6">
+                                                <label class="form-label fw-bold">Nama:</label>
+                                                <p id="detailName"></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">Jenis Kelamin:</label>
+                                                <p id="detailGender"></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">Sekolah:</label>
+                                                <p id="detailSchool"></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">Tim:</label>
+                                                <p id="detailTeam"></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">Kelas:</label>
+                                                <p id="detailClass"></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label fw-bold">Wilayah:</label>
+                                                <p id="detailRegion"></p>
+                                            </div>
+                                         
+                                            <div class="col-md-12 ">
+                                                <label class="form-label fw-bold">QR Code:</label><br>
+                                                <div id="detailQr"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -405,7 +488,23 @@
                     member.class_name,
                     member.region ?? '-',
                     qrCode,
-                    `<a href="#" class="btn btn-info btn-sm">Detail</a>
+                    `<button 
+                        type="button" 
+                        class="btn btn-info btn-sm btn-detail"
+                        data-id="${member.id}"
+                        data-name="${member.name}"
+                        data-nisn="${member.nisn}"
+                        data-gender="${member.gender}"
+                        data-school="${member.school_name}"
+                        data-team="${member.team_name}"
+                        data-class="${member.class_name}"
+                        data-region="${member.region}"
+                        data-photo="/uploads/foto/${member.photo ?? ''}"
+                        data-qr="${member.qr_code}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#detailMemberModal">
+                        Detail
+                    </button>
                     <button type="button" class="btn btn-warning btn-sm btn-edit"
                         data-id="${member.id}"
                         data-name="${member.name}"
@@ -468,6 +567,7 @@
         });
     });
 
+    // Edit Member
 $(document).on('click', '.btn-edit', function () {
     
    $('#editId').val($(this).data('id'));
@@ -516,7 +616,23 @@ $('#editMemberForm').submit(function(e){
                 member.class_name,
                 member.region,
                 qrCode,
-               `<a href="#" class="btn btn-info btn-sm">Detail</a>
+               `<button 
+                    type="button" 
+                    class="btn btn-info btn-sm btn-detail"
+                    data-id="${member.id}"
+                    data-name="${member.name}"
+                    data-nisn="${member.nisn}"
+                    data-gender="${member.gender}"
+                    data-school="${member.school_name}"
+                    data-team="${member.team_name}"
+                    data-class="${member.class_name}"
+                    data-region="${member.region}"
+                    data-photo="/uploads/foto/${member.photo ?? ''}"
+                    data-qr="${member.qr_code}"
+                    data-bs-toggle="modal"
+                    data-bs-target="#detailMemberModal">
+                    Detail
+                </button>
                 <button type="button" class="btn btn-warning btn-sm btn-edit"
                     data-id="${member.id}"
                     data-name="${member.name}"
@@ -557,6 +673,33 @@ $('#editMemberForm').submit(function(e){
         }
         });
     });
+// Detail Member
+     $(document).on('click', '.btn-detail', function () {
+            $('#detailName').text($(this).data('name'));
+            $('#detailNisn').text($(this).data('nisn'));
+            $('#detailGender').text($(this).data('gender') === 'Male' ? 'Laki-Laki' : 'Perempuan');
+            $('#detailSchool').text($(this).data('school'));
+            $('#detailTeam').text($(this).data('team'));
+            $('#detailClass').text($(this).data('class'));
+            $('#detailRegion').text($(this).data('region'));
+            
+            // Foto
+            let photo = $(this).data('photo');
+            if (photo) {
+                $('#detailPhoto').attr('src', photo).show();
+            } else {
+                $('#detailPhoto').hide();
+            }
+
+            // QR Code
+            let qrCodeData = $(this).data('qr');
+            $('#detailQr').html('');
+            if (qrCodeData) {
+                let qrImage = `{!! QrCode::size(100)->generate('__QR__') !!}`.replace('__QR__', qrCodeData);
+                $('#detailQr').html(qrImage);
+            }
+        });
+
 });
 
 </script>

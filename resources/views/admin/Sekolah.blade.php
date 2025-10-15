@@ -1,5 +1,18 @@
 @extends('layout.app')
 
+<style>
+    
+.alert-danger ul {
+    list-style-type: none; 
+    padding-left: 0;       
+    margin-bottom: 0;
+}
+.alert-danger li {
+    margin-left: 0;
+}
+
+</style>
+
 @section('content')
 <div class="page-header d-print-none">
         <div class="container-xl">
@@ -235,12 +248,15 @@ $(document).ready(function () {
                 }, 3000);
                 
                 var school = response.school;
+                
+                var deleteUrl = "{{ route('admin.sekolah.destroy', ':id') }}".replace(':id', school.id);
+
                 table.row.add([
                     school.id,
                     school.name,
                     school.region,
                     school.province,
-                    '<form method="POST" action="/admin/sekolah/'+school.id+'" style="display:inline-block;">' +
+                    '<form method="POST" action="' + deleteUrl + '" style="display:inline-block;">' +
                     '<input type="hidden" name="_token" value="{{ csrf_token() }}">' +
                     '<input type="hidden" name="_method" value="DELETE">' +
                     '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin menghapus sekolah ini?\')">Hapus</button>' +
