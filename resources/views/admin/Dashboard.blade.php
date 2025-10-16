@@ -121,59 +121,61 @@
 <div class="card shadow-sm mt-4">
   <div class="card-header fw-bold">Daftar Kehadiran Anggota</div>
   <div class="card-body">
-    <table id="anggotaTable" class="table table-bordered table-striped" style="width:100%">
-      <thead class="table-light">
-        <tr>
-          <th>No</th>
-          <th>Nama Anggota</th>
-          <th>Nama Sekolah</th>
-          <th>TIM</th>
-          <th>Wilayah</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>1</td><td>Andi Saputra</td><td>SMK TARUNA BHAKTI</td><td>TIM A</td><td>DEPOK</td></tr>
-        <tr><td>2</td><td>Budi Santoso</td><td>SMAN 2 KOTA DEPOK</td><td>TIM B</td><td>DEPOK</td></tr>
-        <tr><td>3</td><td>Siti Aminah</td><td>SMAN 3 KOTA DEPOK</td><td>TIM C</td><td>DEPOK</td></tr>
-        <tr><td>4</td><td>Aminah Aisyah</td><td>SMAN 2 KOTA DEPOK</td><td>TIM C</td><td>DEPOK</td></tr>
-        <tr><td>5</td><td>Amenna Bunga</td><td>SMA 2 KOTA DEPOK</td><td>TIM A</td><td>DEPOK</td></tr>
-        <tr><td>6</td><td>Sania Fitri</td><td>MAN 1 BOGOR</td><td>TIM C</td><td>BOGOR</td></tr>
-        <tr><td>7</td><td>Even Ariel</td><td>SMAN Taruna Bhkati</td><td>TIM B</td><td>DEPOK</td></tr>
-        <tr><td>8</td><td>Safitri</td><td>SMAN 2 KOTA DEPOK</td><td>TIM C</td><td>DEPOK</td></tr>
-        <tr><td>9</td><td>Sena Fitri</td><td>SMK Taruna Bhakti</td><td>TIM E</td><td>DEPOK</td></tr>
-      </tbody>
-    </table>
-  </div>
+  <table id="anggotaTable" class="table table-bordered table-striped" style="width:100%">
+    <thead class="table-light">
+      <tr>
+        <th>No</th>
+        <th>Nama Anggota</th>
+        <th>Nama Sekolah</th>
+        <th>Tim</th>
+        <th>Wilayah</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
 </div>
 
 @endsection
 
 @push('scripts')
-<!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-
-<!-- jQuery + DataTables -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
 <script>
-  $(document).ready(function() {
-    $('#anggotaTable').DataTable({
-      pageLength: 5,
-      lengthMenu: [5, 10, 25, 50],
-      language: {
-        search: "Cari:",
-        lengthMenu: "Tampilkan _MENU_ data",
-        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-        paginate: {
-          first: "Awal",
-          last: "Akhir",
-          next: "›",
-          previous: "‹"
-        }
+$(document).ready(function() {
+  $('#anggotaTable').DataTable({
+    ajax: "{{ route('admin.dashboard.member') }}",
+    columns: [
+      { 
+        data: null, 
+        render: function (data, type, row, meta) {
+          return meta.row + 1;
+        },
+        className: 'text-center'
+      },
+      { data: 'name' },
+      { data: 'school.name', defaultContent: '-' },
+      { data: 'team_name' },
+      { data: 'school.region', defaultContent: '-' }
+    ],
+    pageLength: 5,
+    lengthMenu: [5, 10, 25, 50],
+    language: {
+      // search: "Cari:",
+      // lengthMenu: "Tampilkan _MENU_ data",
+      // info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+      paginate: {
+        first: "Awal",
+        last: "Akhir",
+        next: "›",
+        previous: "‹"
       }
-    });
+    }
   });
+});
 </script>
 @endpush
+

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\SchoolController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\TambahMemberController;
 
 /*
@@ -31,6 +32,9 @@ Route::post('/login', [AdminController::class, 'login'])->name('login.submit');
 Route::get('admin/dashboard', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard');
+
+Route::get('/admin/dashboard/member', [DashboardController::class, 'getMembers'])->name('admin.dashboard.member');
+
 
 //member
 Route::get('/admin/member', [MemberController::class, 'index'])->name('admin.member'); 
