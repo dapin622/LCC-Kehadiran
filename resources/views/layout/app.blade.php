@@ -50,7 +50,7 @@
     <!-- Sidebar -->
     <div class="sidebar bg-white border-end position-fixed p-3 d-flex flex-column">
       <div class="d-flex align-items-center mb-4">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Logo_of_People%27s_Consultative_Assembly_Indonesia.png/625px-Logo_of_People%27s_Consultative_Assembly_Indonesia.png" alt="Logo" class="me-2" style="height:40px;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Logo_of_People%27s_Consultative_Assembly_Indonesia.png/625px-Logo_of_People%27s_Consultative_Assembly_Indonesia.png" alt="Logo" class="me-2" style="width: 45px; height:45px;">
         <span class="fw-bold"> LCC MPR KEHADIRAN</span>
       </div>
       <ul class="nav flex-column">
