@@ -160,7 +160,7 @@
                                             Edit
                                             </button>
 
-                                            <form action="{{ route('admin.member.destroy', $member->id) }}" method="POST"
+                                            <form action="{{ route('admin.member.destroy', $member->id) }}" method="POST" class="delete-form"
                                                   style="display:inline-block;">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-sm"
@@ -283,17 +283,17 @@
                             @endif
                             <input type="hidden" name="id" id="editId">
                             <div class="row g-3">
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6    ">
                                 <label class="form-label">Nama</label>
                                 <input type="text" name="name" id="editName" class="form-control" required>
                                 </div>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6    ">
                                 <label class="form-label">NISN</label>
                                 <input type="text" name="nisn" id="editNisn" class="form-control" required>
                                 </div>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6    ">
                                 <label class="form-label">Jenis Kelamin</label>
                                 <select name="gender" id="editGender" class="form-select" required>
                                     <option value="Male">Laki-Laki</option>
@@ -301,7 +301,7 @@
                                 </select>
                                 </div>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6    ">
                                 <label class="form-label">Sekolah</label>
                                 <select name="school_id" id="editSchool" class="form-select" required>
                                     @foreach($schools as $school)
@@ -310,12 +310,12 @@
                                 </select>
                                 </div>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6    ">
                                 <label class="form-label">Tim</label>
                                 <input type="text" name="team" id="editTeam" class="form-control" required>
                                 </div>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6    ">
                                 <label class="form-label">Kelas</label>
                                 <select name="class_name" id="editClass" class="form-select" required>
                                     <option value="X">X</option>
@@ -324,12 +324,12 @@
                                 </select>
                                 </div>
                                 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6    ">
                                     <label class="form-label">QR Code</label>
                                     <input type="text" name="qr_code" id="editQrCode" class="form-control" >
                                 </div>
 
-                                <div class="col-md-6 mb-3">
+                                <div class="col-md-6    ">
                                 <label class="form-label">Foto</label>
                                 <input type="file" name="photo" id="editPhoto" class="form-control">
                                 </div>
@@ -478,7 +478,7 @@
                 var photo = member.photo ? '<img src="/uploads/foto/' + member.photo + '" width="60" height="60" class=" me-2">' : '';
                 // var qrCode = '<img src="data:image/png;base64,' + member.qr_code_base64 + '" width="40" height="40">';
                 var qrCode = member.qr_code_svg;
-                // var qrCode = '<img src="data:image/png;base64,' + response.qr_code_png + '" width="50" height="50">';
+                var deleteUrl = "{{ route('admin.member.destroy', ':id') }}".replace(':id', member.id);
 
                 table.row.add([
                     member.id,
@@ -518,8 +518,16 @@
                         data-bs-target="#editMemberModal">
                         Edit
                     </button>
-                    <form style="display:inline-block;">@csrf @method("DELETE")<button type="submit" class="btn btn-danger btn-sm">Delete</button></form>`
+                    <form method="POST" action="${deleteUrl}" style="display:inline-block;">
+                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="btn btn-danger btn-sm"
+                        onclick="return confirm('Yakin ingin menghapus member ini?')">Hapus</button>
+                    </form>`
                 ]).draw(false);
+
+                table.columns.adjust().draw(false);
+                initButtonEvents();
 
                  if($("#filterSchool option[value='"+member.school_name+"']").length === 0){
                     $('#filterSchool').append('<option value="'+member.school_name+'">'+member.school_name+'</option>');
@@ -567,6 +575,50 @@
         });
     });
 
+        function initButtonEvents() {
+        $(document).off('submit', '.delete-form').on('submit', '.delete-form', function(e){
+            e.preventDefault();
+
+            const form = $(this);
+            const row = form.closest('tr');
+            const deletedTeam = row.find('td:eq(3)').text().trim();
+
+
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                success: function() {
+                    $('#memberTable').DataTable().row(form.closest('tr')).remove().draw(false);
+                    
+                     $('#alertSuccess')
+                        .removeClass('d-none')
+                        .text('Siswa berhasil dihapus!')
+                        .fadeIn();
+
+                    setTimeout(function(){
+                        $('#alertSuccess').fadeOut(function(){
+                            $(this).addClass('d-none').show().html('');
+                        });
+                    }, 3000);
+
+                     let stillHasTeam = false;
+                    table.column(3).data().each(function(value){
+                        if (value.trim() === deletedTeam) stillHasTeam = true;
+                    });
+                    if (!stillHasTeam) {
+                        $(`#filterTeam option[value="${deletedTeam}"]`).remove();
+                    }
+
+                },
+                error: function() {
+                    alert('Gagal menghapus data.');
+                }
+            });
+        });
+    }
+
+
     // Edit Member
 $(document).on('click', '.btn-edit', function () {
     
@@ -603,8 +655,10 @@ $('#editMemberForm').submit(function(e){
               .fadeIn().delay(3000).fadeOut();
               
             let member = response.member;
-            let photo = member.photo ? `<img src="/uploads/foto/${member.photo}" width="60" height="60" class="me-2">`: '';
+            let timestamp = new Date().getTime();
+            let photo = member.photo ? `<img src="/uploads/foto/${member.photo}?v=${timestamp}" width="60" height="60" class="me-2">` : '';
             let qrCode = member.qr_code_svg ?? '<span class="text-danger">No QR</span>';
+            let deleteUrl = "{{ route('admin.member.destroy', ':id') }}".replace(':id', member.id);
 
             let editRow = $('button[data-id="' + member.id + '"]').closest('tr');
 
@@ -646,7 +700,12 @@ $('#editMemberForm').submit(function(e){
                     data-bs-target="#editMemberModal">
                     Edit
                 </button>
-                <form style="display:inline-block;">@csrf @method("DELETE")<button type="submit" class="btn btn-danger btn-sm">Delete</button></form>`
+                <form method="POST" action="${deleteUrl}" style="display:inline-block;">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger btn-sm"
+                    onclick="return confirm('Yakin ingin menghapus member ini?')">Hapus</button>
+                </form>`
             ]).draw(false);
         },
         error: function(xhr){
@@ -685,11 +744,18 @@ $('#editMemberForm').submit(function(e){
             
             // Foto
             let photo = $(this).data('photo');
+            let photoContainer = $('#detailPhoto').parent();
+
             if (photo) {
                 $('#detailPhoto').attr('src', photo).show();
+                if ($('#noPhotoText').length) $('#noPhotoText').remove(); 
             } else {
                 $('#detailPhoto').hide();
-            }
+                if (!$('#noPhotoText').length) {
+                    photoContainer.append('<p id="noPhotoText" class="text-danger mt-2">Gambar tidak ada</p>');
+                }
+            }   
+
 
             // QR Code
             let qrCodeData = $(this).data('qr');
