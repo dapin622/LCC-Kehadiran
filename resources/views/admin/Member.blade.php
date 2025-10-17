@@ -10,6 +10,12 @@
     margin-left: 0;
 }
 
+table.dataTable td {
+  white-space: normal !important;
+  word-wrap: break-word;
+  vertical-align: middle;
+}
+
 </style>
 @section('content')
     {{-- Page Header --}}
@@ -420,6 +426,12 @@
             paging: true,      
             info: true ,
         });
+        
+        $('#addMemberModal').on('show.bs.modal', function () {
+            const newUuid = self.crypto.randomUUID(); 
+            $('input[name="qr_code"]').val(newUuid);
+        });
+
 
         $('#globalSearch').on('keyup', function () {
             table.search(this.value).draw();
