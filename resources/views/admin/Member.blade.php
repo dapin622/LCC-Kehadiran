@@ -718,7 +718,26 @@ $('#editMemberForm').submit(function(e){
                     <button type="submit" class="btn btn-danger btn-sm"
                     onclick="return confirm('Yakin ingin menghapus member ini?')">Hapus</button>
                 </form>`
-            ]).draw(false);
+            ]).invalidate().draw(false);
+
+              if ($("#filterTeam option[value='" + member.team_name + "']").length === 0) {
+                $('#filterTeam').append('<option value="'+member.team_name+'">'+member.team_name+'</option>');
+             }
+
+            let existingTeams = [];
+            table.column(3).data().each(function(value){
+                existingTeams.push(value.trim());
+            });
+
+            $('#filterTeam option').each(function(){
+                let val = $(this).val().trim();
+                if (val !== "" && !existingTeams.includes(val)) {
+                    $(this).remove();
+                }
+            });
+            
+            table.columns.adjust().draw(false);
+            initButtonEvents();
         },
         error: function(xhr){
             if(xhr.status === 422){ 
