@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 use App\Models\Member;
+
+use App\Models\School;
+use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -16,6 +17,8 @@ class DashboardController extends Controller
 
     public function index()
     {
-        return view('admin.dashboard'); 
+    $schools = School::withCount('members')->get();
+
+    return view('admin.dashboard', compact('schools'));
     }
 }

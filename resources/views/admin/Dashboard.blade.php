@@ -67,48 +67,36 @@
 
 <!-- Daftar Per Sekolah -->
 <div class="row g-4 mb-4">
+  @foreach($schools as $school)
   @php
-    $sekolah = [
-      ['img' => 'taruna.png', 'nama' => 'SMK TARUNA BHAKTI', 'total' => 82, 'hadir' => 82, 'tidak' => 28, 'persen' => 74.55],
-      ['img' => 'sman2.png', 'nama' => 'SMAN 2 KOTA DEPOK', 'total' => 46, 'hadir' => 46, 'tidak' => 40, 'persen' => 53.49],
-      ['img' => 'sman3.png', 'nama' => 'SMAN 3 KOTA DEPOK', 'total' => 77, 'hadir' => 77, 'tidak' => 25, 'persen' => 75.49],
-      ['img' => 'man1.png', 'nama' => 'MAN 1 BOGOR', 'total' => 47, 'hadir' => 47, 'tidak' => 22, 'persen' => 68.12],
-      ['img' => 'sman2.png', 'nama' => 'SMAN 2 KOTA DEPOK', 'total' => 37, 'hadir' => 37, 'tidak' => 31, 'persen' => 54.41],
-      ['img' => 'sman2.png', 'nama' => 'SMAN 2 KOTA DEPOK', 'total' => 28, 'hadir' => 28, 'tidak' => 16, 'persen' => 63.64],
-      ['img' => 'sman2.png', 'nama' => 'SMAN 2 KOTA DEPOK', 'total' => 36, 'hadir' => 36, 'tidak' => 17, 'persen' => 67.92],
-      ['img' => 'sman2.png', 'nama' => 'SMAN 2 KOTA DEPOK', 'total' => 38, 'hadir' => 38, 'tidak' => 10, 'persen' => 79.17],
-      ['img' => 'sman2.png', 'nama' => 'SMAN 2 KOTA DEPOK', 'total' => 125, 'hadir' => 125, 'tidak' => 27, 'persen' => 82.24],
-    ];
+    $total = $school->members_count;
+    $hadir = $total; 
+    $tidak = 0; 
+    $persen = $total > 0 ? round(($hadir / $total) * 100, 2) : 0;
+    $img = $school->photo ?? 'default.png'; 
   @endphp
-
-  @foreach($sekolah as $s)
   <div class="col-sm-6 col-lg-3">
     <div class="card shadow-sm h-100">
       <div class="card-body">
-        <!-- Logo + Info -->
         <div class="d-flex align-items-center mb-2">
-          <img src="{{ asset('images/' . $s['img']) }}" alt="{{ $s['nama'] }}" 
-               class="me-2 rounded" style="width:40px; height:40px; object-fit:contain;">
+          <img src="{{ asset('uploads/foto/' . $img) }}" alt="{{ $school->name }}" 
+               class="me-2 rounded" style="width:60px; height:60px; object-fit:contain;">
           <div>
-            <div class="fw-bold">{{ $s['total'] }} Anggota 
-              <span class="text-success">({{ $s['persen'] }}%)</span>
+            <div class="fw-bold">{{ $total }} Anggota 
+              <span class="text-success">({{ $persen }}%)</span>
             </div>
-            <div class="text-muted small">{{ $s['nama'] }}</div>
+            <div class="text-muted small">{{ $school->name }}</div>
           </div>
         </div>
-
-        <!-- Garis Pemisah -->
         <hr class="my-2">
-
-        <!-- Hadir & Tidak Hadir -->
         <div class="d-flex text-center">
           <div class="flex-fill border-end">
             <div class="fw-bold">Hadir</div>
-            <div class="text-success">{{ $s['hadir'] }}</div>
+            <div class="text-success">{{ $hadir }}</div>
           </div>
           <div class="flex-fill">
             <div class="fw-bold">Tidak Hadir</div>
-            <div class="text-danger">{{ $s['tidak'] }}</div>
+            <div class="text-danger">{{ $tidak }}</div>
           </div>
         </div>
       </div>
@@ -119,7 +107,7 @@
 
 <!-- Tabel Daftar Anggota -->
 <div class="card shadow-sm mt-4">
-  <div class="card-header fw-bold">Daftar Kehadiran Anggota</div>
+  <div class="card-header fw-bold px-3 pt-3 d-flex" style="background-color: white;">Daftar Kehadiran Anggota</div>
   <div class="card-body">
   <table id="anggotaTable" class="table table-bordered table-striped" style="width:100%">
     <thead class="table-light">
