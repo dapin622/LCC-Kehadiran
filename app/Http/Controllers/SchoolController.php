@@ -27,25 +27,79 @@ class SchoolController extends Controller
             'name' => 'required|string|max:255|unique:schools,name',
             'region' => 'required|string|max:255',
             'province' => 'required|string|max:255',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ], [
             'name.unique' => 'Nama sekolah sudah ada.', 
             'name.required' => 'Nama sekolah wajib diisi.',
+            'photo.image' => 'File harus berupa gambar (jpg, jpeg, png).',
         ]);
+
+        $photoPath = null;
+
+        if ($request->hasFile('photo')) {
+            $file = $request->file('photo');
+            $filename = time().'_'.$file->getClientOriginalName(); 
+            $file->move(public_path('uploads/foto'), $filename); 
+            $photoPath = $filename; 
+        }
+
 
         $school = School::create([   
         'name'     => strtoupper($request->name),
         'region'   => strtoupper($request->region),
         'province' => strtoupper($request->province),
+        'photo'    => $photoPath,
         ]);
         
-            if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'school'  => $school
-            ]);
+        if ($request->ajax()) {
+        return response()->json([
+            'success' => true,
+            'school'  => $school,
+            'photo_url' => $photoPath ? asset('uploads/foto/'.$photoPath) : null
+        ]);
         }
         
         return redirect()->route('admin.sekolah')->with('success', 'Sekolah berhasil ditambahkan');
+    }
+
+        public function update(Request $request, $id)
+    {
+        $school = School::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255|unique:schools,name,'.$id,
+            'region' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        $school->update([
+            'name' => strtoupper($request->name),
+            'region' => strtoupper($request->region),
+            'province' => strtoupper($request->province),
+        ]);
+
+        if ($request->hasFile('photo')) {
+            if ($school->photo && file_exists(public_path('uploads/foto/'.$school->photo))) {
+                unlink(public_path('uploads/foto/'.$school->photo));
+            }
+
+            $file = $request->file('photo');
+            $filename = time().'_'.$file->getClientOriginalName();
+            $file->move(public_path('uploads/foto'), $filename);
+            $school->photo = $filename;
+            $school->save();
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'school' => $school,
+                'photo_url' => $school->photo ? asset('uploads/foto/'.$school->photo) : null
+            ]);
+        }
+
+        return redirect()->route('admin.sekolah')->with('success', 'Sekolah berhasil diperbarui!');
     }
 
     public function filter(Request $request)
@@ -68,6 +122,13 @@ class SchoolController extends Controller
         $school = School::findOrFail($id);
         $school->delete();
 
+        if ($school->photo) {
+                $photoPath = public_path('uploads/foto/' . $school->photo);
+                if (file_exists($photoPath)) {
+                    unlink($photoPath);
+                }
+        }
+        
         if ($request->ajax()) {
         return response()->json([
             'success' => true,

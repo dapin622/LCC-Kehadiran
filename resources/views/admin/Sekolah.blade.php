@@ -11,6 +11,14 @@
     margin-left: 0;
 }
 
+table.dataTable td {
+  white-space: normal !important;
+  word-wrap: break-word;
+  max-width: 200px; 
+  vertical-align: middle;
+}
+
+
 </style>
 
 @section('content')
@@ -91,12 +99,13 @@
                         </div>
                     </div>
 
-                    {{-- Bagian Table --}}
+                    
                     <div class="table-responsive p-2">
                         <table id="schoolTable" class="table card-table table-vcenter text-nowrap datatable">
                             <thead>
                                 <tr>
                                     <th>ID</th>
+                                    <th>Logo Sekolah</th>
                                     <th>Nama Sekolah</th>
                                     <th>Wilayah</th>
                                     <th>Provinsi</th>
@@ -107,14 +116,30 @@
                                 @foreach($schools as $school)
                                     <tr>
                                         <td>{{ $school->id }}</td>
+                                        <td>
+                                            @if($school->photo)
+                                            <img src="{{ asset('uploads/foto/'.$school->photo) }}" alt="Foto" width="60" height="60" style="object-fit: cover; border-radius: 6px;">
+                                            @else
+                                            <span class="text-muted">Tidak ada</span>
+                                            @endif
+                                        </td>
                                         <td>{{ $school->name }}</td>
                                         <td>{{ $school->region }}</td>
                                         <td>{{ $school->province }}</td>
                                         <td>
+                                             <button type="button" 
+                                                    class="btn btn-warning btn-sm btn-edit-school"
+                                                    data-id="{{ $school->id }}"
+                                                    data-name="{{ $school->name }}"
+                                                    data-region="{{ $school->region }}"
+                                                    data-province="{{ $school->province }}"
+                                                    data-photo="{{ $school->photo ? asset('uploads/foto/'.$school->photo) : '' }}">
+                                                Edit
+                                            </button>
                                             <form action="{{ route('admin.sekolah.destroy', $school->id) }}" method="POST" style="display:inline-block;">
                                                 @csrf @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-sm"
-                                                    onclick="return confirm('Yakin ingin menghapus sekolah ini?')">Hapus</button>
+                                                    onclick="return confirm('Yakin ingin menghapus sekolah ini?')">Delete</button>
                                             </form>
                                         </td>
                                     </tr>
@@ -134,7 +159,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
   
-      <form id="addSchoolForm" action="{{ route('admin.sekolah.store') }}" method="POST">
+      <form id="addSchoolForm" action="{{ route('admin.sekolah.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="modal-header">
           <h5 class="modal-title">Tambah Sekolah</h5>
@@ -163,6 +188,11 @@
             <label class="form-label">Provinsi</label>
             <input type="text" name="province" class="form-control" style="text-transform: uppercase;" required>
           </div>
+          <div class="mb-3">
+            <label class="form-label">Foto Sekolah</label>
+            <input type="file" name="photo" class="form-control">
+        </div>
+
         </div>
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary">Simpan</button>
@@ -171,6 +201,55 @@
     </div>
   </div>
 </div>
+
+<!-- edit school modal -->
+<div class="modal fade" id="editSchoolModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <form id="editSchoolForm" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Sekolah</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div id="editAlertError" class="alert alert-danger d-none"></div>
+
+        <div class="modal-body">
+          <input type="hidden" id="editSchoolId" name="id">
+
+          <div class="mb-3">
+            <label class="form-label">Nama Sekolah</label>
+            <input type="text" name="name" id="editName" class="form-control" style="text-transform: uppercase;" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Wilayah</label>
+            <input type="text" name="region" id="editRegion" class="form-control" style="text-transform: uppercase;" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Provinsi</label>
+            <input type="text" name="province" id="editProvince" class="form-control" style="text-transform: uppercase;" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Foto Sekolah</label><br>
+            <img id="editPhotoPreview" src="" width="60" height="60" class="mb-2 rounded" style="object-fit:cover; display:none;">
+            <input type="file" name="photo" id="editPhoto" class="form-control">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 
  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -248,20 +327,38 @@ $(document).ready(function () {
                 }, 3000);
                 
                 var school = response.school;
+                var photoHtml = response.photo_url ? '<img src="'+response.photo_url+'" width="60" height="60" style="object-fit:cover;border-radius:6px;">'
+                : '<span class="text-muted">Tidak ada</span>';
                 
                 var deleteUrl = "{{ route('admin.sekolah.destroy', ':id') }}".replace(':id', school.id);
 
                 table.row.add([
                     school.id,
+                    photoHtml,
                     school.name,
                     school.region,
                     school.province,
-                    '<form method="POST" action="' + deleteUrl + '" style="display:inline-block;">' +
-                    '<input type="hidden" name="_token" value="{{ csrf_token() }}">' +
-                    '<input type="hidden" name="_method" value="DELETE">' +
-                    '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin menghapus sekolah ini?\')">Hapus</button>' +
-                    '</form>'
+                   `
+                <button type="button" 
+                    class="btn btn-warning btn-sm btn-edit-school"
+                    data-id="${school.id}"
+                    data-name="${school.name}"
+                    data-region="${school.region}"
+                    data-province="${school.province}"
+                    data-photo="/uploads/foto/${school.photo ?? ''}">
+                    Edit
+                </button>
+
+                <form method="POST" action="${deleteUrl}" class="delete-form" style="display:inline-block;">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                </form>
+                `
                 ]).draw(false);
+                
+                table.columns.adjust().draw();
+                initButtonEvents();
 
                  if($("#filterRegion option[value='"+school.region+"']").length === 0){
                     $('#filterRegion').append('<option value="'+school.region+'">'+school.region+'</option>');
@@ -301,6 +398,134 @@ $(document).ready(function () {
 
         });
     });
+    
+    function initButtonEvents() {
+    $(document).off('submit', '.delete-form').on('submit', '.delete-form', function(e){
+        e.preventDefault();
+
+        const form = $(this);
+        const row = form.closest('tr');
+
+        if (!confirm('Yakin ingin menghapus sekolah ini?')) return;
+
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: form.serialize(),
+            success: function(response){
+                $('#schoolTable').DataTable().row(row).remove().draw(false);
+
+                $('#alertSuccess')
+                    .removeClass('d-none')
+                    .text(response.message || 'Sekolah berhasil dihapus!')
+                    .fadeIn();
+
+                setTimeout(function(){
+                    $('#alertSuccess').fadeOut(function(){
+                        $(this).addClass('d-none').show().html('');
+                    });
+                }, 3000);
+            },
+            error: function(xhr){
+                alert('Gagal menghapus sekolah, silakan coba lagi.');
+            }
+        });
+    });
+}
+
+
+    // Edit
+$(document).on('click', '.btn-edit-school', function () {
+    $('#editSchoolId').val($(this).data('id'));
+    $('#editName').val($(this).data('name'));
+    $('#editRegion').val($(this).data('region'));
+    $('#editProvince').val($(this).data('province'));
+    $('#editPhotoPreview').attr('src', $(this).data('photo'));
+
+    $('#editSchoolModal').modal('show');
+});
+
+$('#editSchoolForm').submit(function (e) {
+    e.preventDefault();
+    let id = $('#editSchoolId').val();
+    let formData = new FormData(this);
+
+    $.ajax({
+        url: '/admin/sekolah/' + id,
+        type: 'POST',
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            $('#editSchoolModal').modal('hide');
+
+            $('#alertSuccess')
+                .removeClass('d-none')
+                .text('Data sekolah berhasil diperbarui!')
+                .fadeIn().delay(3000).fadeOut();
+
+            let school = response.school;
+            let timestamp = new Date().getTime();
+            let photo = school.photo
+                ? `<img src="/uploads/foto/${school.photo}?v=${timestamp}" width="60" height="60" class="me-2 rounded">`
+                : '';
+
+            let deleteUrl = "{{ route('admin.sekolah.destroy', ':id') }}".replace(':id', school.id);
+
+            let editRow = $('button[data-id="' + school.id + '"]').closest('tr');
+
+            table.row(editRow).data([
+                school.id,
+                photo,
+                school.name,
+                school.region,
+                school.province,
+                `
+                <button type="button" 
+                    class="btn btn-warning btn-sm btn-edit-school"
+                    data-id="${school.id}"
+                    data-name="${school.name}"
+                    data-region="${school.region}"
+                    data-province="${school.province}"
+                    data-photo="/uploads/foto/${school.photo ?? ''}">
+                    Edit
+                </button>
+
+                <form method="POST" action="${deleteUrl}" class="delete-form" style="display:inline-block;">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                </form>
+                `
+            ]).invalidate().draw(false);
+
+            table.columns.adjust().draw(false);
+            initButtonEvents();
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                let errorMessages = '';
+                $.each(errors, function (key, value) {
+                    errorMessages += '<li>' + value[0] + '</li>';
+                });
+
+                $('#alertErrorEdit')
+                    .removeClass('d-none')
+                    .html('<ul class="mb-0">' + errorMessages + '</ul>');
+
+                setTimeout(function () {
+                    $('#alertErrorEdit').fadeOut(function () {
+                        $(this).addClass('d-none').show().html('');
+                    });
+                }, 3000);
+            } else {
+                alert('Gagal memperbarui sekolah!');
+            }
+        }
+    });
+});
+
 });
 </script>
 

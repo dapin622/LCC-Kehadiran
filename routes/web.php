@@ -33,6 +33,8 @@ Route::get('admin/dashboard', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard');
 
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
 Route::get('/admin/dashboard/member', [DashboardController::class, 'getMembers'])->name('admin.dashboard.member');
 
 
@@ -55,6 +57,9 @@ Route::delete('/admin/member/{id}', [MemberController::class, 'destroy'])->name(
 Route::get('/admin/school', [SchoolController::class, 'index'])->name('admin.sekolah');
 
 Route::get('admin/school/create', [SchoolController::class, 'create'])->name('admin.sekolah.create');
+
+Route::put('/admin/sekolah/{id}', [SchoolController::class, 'update'])->name('admin.sekolah.update');
+
 
 Route::post('/admin/school/store', [SchoolController::class, 'store'])->name('admin.sekolah.store');
 

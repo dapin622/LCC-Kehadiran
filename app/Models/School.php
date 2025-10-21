@@ -13,5 +13,12 @@ class School extends Model
         'name',
         'region',
         'province',
+        'photo',
     ];
+
+    public function members()
+    {
+        return $this->hasMany(Member::class);
+    }
+
 }
