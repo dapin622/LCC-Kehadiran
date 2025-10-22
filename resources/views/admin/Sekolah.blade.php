@@ -425,6 +425,34 @@ $(document).ready(function () {
                         $(this).addClass('d-none').show().html('');
                     });
                 }, 3000);
+
+                let table = $('#schoolTable').DataTable();
+
+                let existingRegions = [];
+                table.column(3).data().each(function (value) {
+                    existingRegions.push(value.trim());
+                });
+                let existingProvinces = [];
+                table.column(4).data().each(function (value) {
+                    existingProvinces.push(value.trim());
+                });
+
+                $('#filterRegion option').each(function () {
+                    let val = $(this).val().trim();
+                    if (val !== "" && !existingRegions.includes(val)) {
+                        $(this).remove();
+                    }
+                });
+
+                $('#filterProvince option').each(function () {
+                    let val = $(this).val().trim();
+                    if (val !== "" && !existingProvinces.includes(val)) {
+                        $(this).remove();
+                    }
+                });
+
+                table.columns.adjust().draw(false);
+                
             },
             error: function(xhr){
                 alert('Gagal menghapus sekolah, silakan coba lagi.');
@@ -466,9 +494,9 @@ $('#editSchoolForm').submit(function (e) {
 
             let school = response.school;
             let timestamp = new Date().getTime();
-            let photo = school.photo
-                ? `<img src="/uploads/foto/${school.photo}?v=${timestamp}" width="60" height="60" class="me-2 rounded">`
-                : '';
+            let photo = school.photo ? `<img src="/uploads/foto/${school.photo}?v=${timestamp}" width="60" height="60" class="me-2 rounded" style="object-fit:cover;border-radius:6px;">`
+            : `<span class="text-muted">Tidak ada</span>`;
+
 
             let deleteUrl = "{{ route('admin.sekolah.destroy', ':id') }}".replace(':id', school.id);
 
@@ -498,6 +526,36 @@ $('#editSchoolForm').submit(function (e) {
                 </form>
                 `
             ]).invalidate().draw(false);
+
+            if ($("#filterRegion option[value='" + school.region + "']").length === 0) {
+                $('#filterRegion').append('<option value="' + school.region + '">' + school.region + '</option>');
+            }
+
+            if ($("#filterProvince option[value='" + school.province + "']").length === 0) {
+                $('#filterProvince').append('<option value="' + school.province + '">' + school.province + '</option>');
+            }
+
+            let existingRegions = [];
+            table.column(3).data().each(function (value) {
+                existingRegions.push(value.trim());
+            });
+            $('#filterRegion option').each(function () {
+                let val = $(this).val().trim();
+                if (val !== "" && !existingRegions.includes(val)) {
+                    $(this).remove();
+                }
+            });
+
+            let existingProvinces = [];
+            table.column(4).data().each(function (value) {
+                existingProvinces.push(value.trim());
+            });
+            $('#filterProvince option').each(function () {
+                let val = $(this).val().trim();
+                if (val !== "" && !existingProvinces.includes(val)) {
+                    $(this).remove();
+                }
+            });
 
             table.columns.adjust().draw(false);
             initButtonEvents();
