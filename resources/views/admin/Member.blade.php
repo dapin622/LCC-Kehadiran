@@ -362,7 +362,7 @@ table.dataTable td {
                                         <div class="row g-3">
                                             <div class="col-md-6 ">
                                                 <label class="form-label fw-bold">Foto:</label><br>
-                                                <img id="detailPhoto" src="" width="100" height="100" class="rounded border">
+                                                <img id="detailPhoto" src="" width="160" height="160" class="rounded border">
                                             </div>
                                            
                                             <div class="col-md-6">
@@ -511,7 +511,7 @@ table.dataTable td {
                         data-team="${member.team_name}"
                         data-class="${member.class_name}"
                         data-region="${member.region}"
-                        data-photo="/uploads/foto/${member.photo ?? ''}"
+                        data-photo="${member.photo ? '/uploads/foto/' + member.photo : ''}"
                         data-qr="${member.qr_code}"
                         data-bs-toggle="modal"
                         data-bs-target="#detailMemberModal">
@@ -693,7 +693,7 @@ $('#editMemberForm').submit(function(e){
                     data-team="${member.team_name}"
                     data-class="${member.class_name}"
                     data-region="${member.region}"
-                    data-photo="/uploads/foto/${member.photo ?? ''}"
+                    data-photo="${member.photo ? '/uploads/foto/' + member.photo : ''}"
                     data-qr="${member.qr_code}"
                     data-bs-toggle="modal"
                     data-bs-target="#detailMemberModal">
