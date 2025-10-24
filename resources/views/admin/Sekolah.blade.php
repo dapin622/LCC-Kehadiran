@@ -282,12 +282,36 @@ $(document).ready(function () {
         success: function(data) {
             table.clear(); 
             $.each(data, function(i, school) {
+
+                let photo = school.photo
+                ? `<img src="/uploads/foto/${school.photo}" width="60" height="60" style="object-fit:cover; border-radius:6px;">`
+                : `<span class="text-muted">Tidak ada</span>`;
+
+                let deleteUrl = "/admin/sekolah/" + school.id;
+
                 table.row.add([
                     school.id,
+                    photo,
                     school.name,
                     school.region,
                     school.province,
-                    '<form method="POST" action="/admin/sekolah/'+school.id+'" style="display:inline-block;">@csrf @method("DELETE")<button type="submit" class="btn btn-danger btn-sm">Hapus</button></form>'
+                     `
+                <button type="button" 
+                    class="btn btn-warning btn-sm btn-edit-school"
+                    data-id="${school.id}"
+                    data-name="${school.name}"
+                    data-region="${school.region}"
+                    data-province="${school.province}"
+                    data-photo="/uploads/foto/${school.photo ?? ''}">
+                    Edit
+                </button>
+
+                <form method="POST" action="${deleteUrl}" class="delete-form" style="display:inline-block;">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
+                </form>
+                `
                 ]);
             });
             table.draw();
