@@ -534,7 +534,7 @@ table.dataTable td {
                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="btn btn-danger btn-sm"
-                        onclick="return confirm('Yakin ingin menghapus member ini?')">Hapus</button>
+                        onclick="return confirm('Yakin ingin menghapus member ini?')">Delete</button>
                     </form>`
                 ]).draw(false);
 
@@ -716,7 +716,7 @@ $('#editMemberForm').submit(function(e){
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                     <input type="hidden" name="_method" value="DELETE">
                     <button type="submit" class="btn btn-danger btn-sm"
-                    onclick="return confirm('Yakin ingin menghapus member ini?')">Hapus</button>
+                    onclick="return confirm('Yakin ingin menghapus member ini?')">Delete</button>
                 </form>`
             ]).invalidate().draw(false);
 
