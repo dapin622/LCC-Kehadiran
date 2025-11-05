@@ -17,7 +17,7 @@ class Member extends Model
         'gender',
         'school_id',   
         'team_name',
-        'class_name',
+        'class_id',
         'photo',
         'qr_code',
     ];
@@ -25,6 +25,11 @@ class Member extends Model
     public function school()
     {
         return $this->belongsTo(School::class);
+    }
+
+    public function class()
+    {
+        return $this->belongsTo(ClassRoom::class, 'class_id');
     }
 
 }

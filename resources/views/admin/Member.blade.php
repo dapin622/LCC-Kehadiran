@@ -54,6 +54,16 @@ table.dataTable td {
                             </svg>
                             Add Siswa
                         </button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addClassModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M12 5v14"/>
+                                <path d="M5 12h14"/>
+                            </svg>
+                            Add Kelas
+                        </button>
                     </div>
                 </div>
             </div>
@@ -126,7 +136,7 @@ table.dataTable td {
                                         </td>
                                         <td>{{ $member->school->name ?? '-' }}</td>
                                         <td>{{ $member->team_name }}</td>
-                                        <td>{{ $member->class_name }}</td>
+                                        <td>{{ $member->class->name ?? '-'  }}</td>
                                         <td>{{ $member->school->region ?? '-' }}</td>
                                       
                                         <td>{!! QrCode::size(50)->generate($member->qr_code) !!}</td>
@@ -140,7 +150,7 @@ table.dataTable td {
                                             data-gender="{{ $member->gender }}"
                                             data-school="{{ $member->school->name ?? '-' }}"
                                             data-team="{{ $member->team_name }}"
-                                            data-class="{{ $member->class_name }}"
+                                            data-class-name="{{ $member->class->name ?? '-'  }}"
                                             data-region="{{ $member->school->region ?? '-' }}"
                                             data-photo="{{ $member->photo ? asset('uploads/foto/'.$member->photo) : '' }}"
                                             data-qr="{{ $member->qr_code }}"
@@ -158,7 +168,7 @@ table.dataTable td {
                                             data-gender="{{ $member->gender }}"
                                             data-school="{{ $member->school_id }}"
                                             data-team="{{ $member->team_name }}"
-                                            data-classname="{{ $member->class_name }}"
+                                            data-class-id="{{ $member->class_id }}"
                                             data-qr="{{ $member->qr_code }}"
                                             data-bs-toggle="modal"
                                             data-bs-target="#editMemberModal"
@@ -238,11 +248,11 @@ table.dataTable td {
 
                             <div class="col-md-6">
                             <label class="form-label">Kelas</label>
-                            <select name="class_name" class="form-select" required>
+                            <select name="class_id" class="form-select">
                                 <option value="">Pilih Kelas</option>
-                                <option value="X">X</option>
-                                <option value="XI">XI</option>
-                                <option value="XII">XII</option>
+                                @foreach($classes as $class)
+                                    <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                @endforeach
                             </select>
                             </div>
 
@@ -265,6 +275,60 @@ table.dataTable td {
                     </div>
                 </div>
             </div>
+
+            <!-- Manage Class -->
+            <div class="modal fade" id="addClassModal" tabindex="-1" aria-labelledby="addClassModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Kelola Data Kelas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    
+                    <div class="input-group mb-3">
+                            <input type="text" id="newClassName" class="form-control" placeholder="Nama kelas baru"> 
+                            <button id="addClassBtn" class="btn btn-primary">Tambah</button>
+
+                    </div>
+                    <div id="alertSuccessClass" class="alert alert-success d-none"></div>
+                    <div id="alertErrorClass" class="alert alert-danger d-none"></div>
+                             @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    <table id="classTable" class="table table-bordered align-middle">
+                    <thead>
+                        <tr>
+                        <th>id</th>
+                        <th>Nama Kelas</th>
+                        <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($classes as $class)
+                        <tr data-id="{{ $class->id }}">
+                            <td>{{ $class->id }}</td>
+                            <td><input type="text" class="form-control form-control-sm class-name" value="{{ $class->name }}"></td>
+                            <td>
+                            <button class="btn btn-warning btn-sm btn-update-class">Update</button>
+                            <button class="btn btn-danger btn-sm btn-delete-class">Hapus</button>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
             <!-- Edit Member -->
                     <div class="modal fade" id="editMemberModal" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-lg">
@@ -289,17 +353,17 @@ table.dataTable td {
                             @endif
                             <input type="hidden" name="id" id="editId">
                             <div class="row g-3">
-                                <div class="col-md-6    ">
+                                <div class="col-md-6">
                                 <label class="form-label">Nama</label>
                                 <input type="text" name="name" id="editName" class="form-control" required>
                                 </div>
 
-                                <div class="col-md-6    ">
+                                <div class="col-md-6">
                                 <label class="form-label">NISN</label>
                                 <input type="text" name="nisn" id="editNisn" class="form-control" required>
                                 </div>
 
-                                <div class="col-md-6    ">
+                                <div class="col-md-6">
                                 <label class="form-label">Jenis Kelamin</label>
                                 <select name="gender" id="editGender" class="form-select" required>
                                     <option value="Male">Laki-Laki</option>
@@ -307,7 +371,7 @@ table.dataTable td {
                                 </select>
                                 </div>
 
-                                <div class="col-md-6    ">
+                                <div class="col-md-6">
                                 <label class="form-label">Sekolah</label>
                                 <select name="school_id" id="editSchool" class="form-select" required>
                                     @foreach($schools as $school)
@@ -316,26 +380,27 @@ table.dataTable td {
                                 </select>
                                 </div>
 
-                                <div class="col-md-6    ">
+                                <div class="col-md-6">
                                 <label class="form-label">Tim</label>
                                 <input type="text" name="team" id="editTeam" class="form-control" required>
                                 </div>
 
-                                <div class="col-md-6    ">
+                                <div class="col-md-6">
                                 <label class="form-label">Kelas</label>
-                                <select name="class_name" id="editClass" class="form-select" required>
-                                    <option value="X">X</option>
-                                    <option value="XI">XI</option>
-                                    <option value="XII">XII</option>
+                                <select name="class_id" id="editClass" class="form-select" required>
+                                    <option value="">Pilih Kelas</option>
+                                    @foreach($classes as $class)
+                                        <option value="{{ $class->id }}">{{ $class->name }}</option>
+                                    @endforeach
                                 </select>
                                 </div>
                                 
-                                <div class="col-md-6    ">
+                                <div class="col-md-6">
                                     <label class="form-label">QR Code</label>
                                     <input type="text" name="qr_code" id="editQrCode" class="form-control" >
                                 </div>
 
-                                <div class="col-md-6    ">
+                                <div class="col-md-6">
                                 <label class="form-label">Foto</label>
                                 <input type="file" name="photo" id="editPhoto" class="form-control">
                                 </div>
@@ -509,7 +574,7 @@ table.dataTable td {
                         data-gender="${member.gender}"
                         data-school="${member.school_name}"
                         data-team="${member.team_name}"
-                        data-class="${member.class_name}"
+                        data-class-name="${member.class_name}"
                         data-region="${member.region}"
                         data-photo="${member.photo ? '/uploads/foto/' + member.photo : ''}"
                         data-qr="${member.qr_code}"
@@ -524,7 +589,7 @@ table.dataTable td {
                         data-gender="${member.gender}"
                         data-school="${member.school_id}"
                         data-team="${member.team_name}"
-                        data-classname="${member.class_name}"
+                        data-class-id="${member.class_id}"
                         data-qr="${member.qr_code}"
                         data-bs-toggle="modal"
                         data-bs-target="#editMemberModal">
@@ -630,16 +695,174 @@ table.dataTable td {
         });
     }
 
+//kelas
+    $('#addClassBtn').on('click', function() {
+        let name = $('#newClassName').val().trim();
+        if (!name) {
+            showClassAlert('Nama kelas tidak boleh kosong!', 'danger');
+            return;
+        }
+
+        $.ajax({
+            url: "{{ route('admin.member.class.store') }}",
+            method: "POST",
+            data: { name: name, _token: "{{ csrf_token() }}" },
+            success: function(response) {
+                
+                $('#classTable tbody').append(`
+                    <tr data-id="${response.class.id}">
+                        <td>${response.class.id}</td>
+                        <td><input type="text" class="form-control form-control-sm class-name" value="${response.class.name}"></td>
+                        <td>
+                            <button class="btn btn-warning btn-sm btn-update-class">Update</button>
+                            <button class="btn btn-danger btn-sm btn-delete-class">Hapus</button>
+                        </td>
+                    </tr>
+                `);
+
+                $('select[name="class_id"]').append(`<option value="${response.class.id}">${response.class.name}</option>`);
+
+                $('#newClassName').val('');
+
+                $('#alertSuccessClass')
+                    .removeClass('d-none')
+                    .html('Kelas berhasil ditambahkan!')
+                    .fadeIn();
+
+                setTimeout(function(){
+                    $('#alertSuccessClass').fadeOut(function(){
+                        $(this).addClass('d-none').show().html('');
+                    });
+                }, 3000);
+
+            },
+            error: function(xhr){
+            if(xhr.status === 422){ 
+                let errors = xhr.responseJSON.errors;
+                let errorMessages = '';
+                $.each(errors, function(key, value){
+                    errorMessages += '<li>'+ value[0] + '</li>';
+                });
+
+                $('#alertErrorClass')
+                    .removeClass('d-none')
+                    .html('<ul class="mb-0">'+errorMessages+'</ul>');
+
+                setTimeout(function(){
+                    $('#alertErrorClass').fadeOut(function(){
+                        $(this).addClass('d-none').show().html('');
+                    });
+                }, 3000);
+
+            } else {
+                $('#alertErrorClass')
+                    .removeClass('d-none')
+                    .html('Terjadi error, silakan coba lagi.');
+
+                setTimeout(function(){
+                    $('#alertErrorClass').fadeOut(function(){
+                        $(this).addClass('d-none').show().html('');
+                    });
+                }, 3000);
+            }
+        }
+        });
+    });
+
+    $(document).on('click', '.btn-update-class', function() {
+        let row = $(this).closest('tr');
+        let id = row.data('id');
+        let name = row.find('.class-name').val();
+
+        $.ajax({
+            url: `/admin/member/class/${id}`,
+            method: 'PUT',
+            data: { 
+                name: name, 
+                _token: "{{ csrf_token() }}" 
+            },
+             success: function (response) {
+            if (response.success) {
+                row.find('.class-name').val(response.class.name);
+
+                $('#alertSuccessClass')
+                    .removeClass('d-none')
+                    .html('Kelas berhasil diperbarui!')
+                    .fadeIn();
+
+                setTimeout(function() {
+                    $('#alertSuccessClass').fadeOut(function() {
+                        $('#alertSuccessClass').addClass('d-none').show().html('');
+                    });
+                }, 3000);
+
+                $(`select[name="class_id"] option[value="${id}"]`).text(response.class.name);
+                $(`#editClass option[value="${id}"]`).text(response.class.name);
+            }
+        },
+        error: function (xhr) {
+            if (xhr.status === 422) {
+                let errors = xhr.responseJSON.errors;
+                let errorMessages = '';
+                $.each(errors, (key, value) => {
+                    errorMessages += '<li>' + value[0] + '</li>';
+                });
+
+                $('#alertErrorClass')
+                    .removeClass('d-none')
+                    .html('<ul class="mb-0">' + errorMessages + '</ul>');
+
+                setTimeout(() => {
+                    $('#alertErrorClass').fadeOut(() => $(this).addClass('d-none').html(''));
+                }, 3000);
+            } else {
+                alert('Terjadi kesalahan saat update.');
+            }
+        }
+        });
+    });
+
+    $(document).on('click', '.btn-delete-class', function() {
+        if (!confirm('Yakin ingin menghapus kelas ini?')) return;
+        let row = $(this).closest('tr');
+        let id = row.data('id');
+
+        $.ajax({
+            url: `/admin/member/class/${id}`,
+            method: 'DELETE',
+            data: { _token: "{{ csrf_token() }}" },
+            success: function (response) {
+            if (response.success) {
+                row.remove();
+
+                $('#alertSuccessClass')
+                    .removeClass('d-none')
+                    .html(response.message)
+                    .fadeIn();
+
+                setTimeout(() => {
+                    $('#alertSuccessClass').fadeOut(() => $(this).addClass('d-none').html(''));
+                }, 3000);
+
+                $(`select[name="class_id"] option[value="${id}"]`).remove();
+            }
+        },
+        error: function () {
+            alert('Terjadi kesalahan saat menghapus kelas.');
+        }
+        });
+    });
+
 
     // Edit Member
 $(document).on('click', '.btn-edit', function () {
-    
+
    $('#editId').val($(this).data('id'));
     $('#editName').val($(this).data('name'));
     $('#editNisn').val($(this).data('nisn'));
     $('#editTeam').val($(this).data('team'));
     $('#editSchool').val($(this).data('school'));
-    $('#editClass').val($(this).data('classname'));
+    $('#editClass').val($(this).data('class-id'));
     $('#editGender').val($(this).data('gender'));
     $('#editQrCode').val($(this).data('qr'));
 
@@ -672,6 +895,8 @@ $('#editMemberForm').submit(function(e){
             let qrCode = member.qr_code_svg ?? '<span class="text-danger">No QR</span>';
             let deleteUrl = "{{ route('admin.member.destroy', ':id') }}".replace(':id', member.id);
 
+            let className = $('#editClass option:selected').text() || member.class_name || '-';
+
             let editRow = $('button[data-id="' + member.id + '"]').closest('tr');
 
              table.row(editRow).data([
@@ -679,7 +904,7 @@ $('#editMemberForm').submit(function(e){
                 `<div class="d-flex align-items-center">${photo}<span>${member.name}</span></div>`,
                 member.school_name,
                 member.team_name,
-                member.class_name,
+                className,
                 member.region,
                 qrCode,
                `<button 
@@ -691,7 +916,7 @@ $('#editMemberForm').submit(function(e){
                     data-gender="${member.gender}"
                     data-school="${member.school_name}"
                     data-team="${member.team_name}"
-                    data-class="${member.class_name}"
+                    data-class-name="${member.class_name}"
                     data-region="${member.region}"
                     data-photo="${member.photo ? '/uploads/foto/' + member.photo : ''}"
                     data-qr="${member.qr_code}"
@@ -706,7 +931,7 @@ $('#editMemberForm').submit(function(e){
                     data-gender="${member.gender}"
                     data-school="${member.school_id}"
                     data-team="${member.team_name}"
-                    data-classname="${member.class_name}"
+                    data-class-id="${member.class_id}"
                     data-qr="${member.qr_code}"
                     data-bs-toggle="modal"
                     data-bs-target="#editMemberModal">
@@ -770,7 +995,7 @@ $('#editMemberForm').submit(function(e){
             $('#detailGender').text($(this).data('gender') === 'Male' ? 'Laki-Laki' : 'Perempuan');
             $('#detailSchool').text($(this).data('school'));
             $('#detailTeam').text($(this).data('team'));
-            $('#detailClass').text($(this).data('class'));
+            $('#detailClass').text($(this).data('class-name'));
             $('#detailRegion').text($(this).data('region'));
             
             // Foto

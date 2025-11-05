@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Member;
 use App\Models\School;
+use App\Models\ClassRoom;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
@@ -14,8 +15,9 @@ class MemberController extends Controller
     {
         $members = Member::with('school')->get();
         $schools = School::all();
+        $classes = ClassRoom::all();
         $teams = Member::select('team_name')->distinct()->pluck('team_name'); 
-        return view('admin.member', compact('members', 'schools', 'teams'));    
+        return view('admin.member', compact('members', 'schools', 'classes', 'teams'));    
     }
     
     // public function create()
@@ -34,7 +36,7 @@ class MemberController extends Controller
         'gender' => 'required',
         'school_id' => 'required|exists:schools,id',
         'team' => 'required|string|max:100',
-        'class_name' => 'required|string|max:50',
+        'class_id' => 'required|exists:class_rooms,id',
         'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
     ],[
             'nisn.unique' => 'NISN sudah ada.', 
@@ -47,7 +49,7 @@ class MemberController extends Controller
         $member->gender = $request->gender;
         $member->school_id = $request->school_id;
         $member->team_name = $request->team;
-        $member->class_name = $request->class_name;
+        $member->class_id = $request->class_id;
         $member->qr_code = $request->qr_code ?? Str::uuid();
 
         if ($request->hasFile('photo')) {
@@ -74,7 +76,8 @@ class MemberController extends Controller
                 'school_name' => $member->school->name ?? '-',
                 'region' => $member->school->region ?? '-',
                 'team_name' => $member->team_name,
-                'class_name' => $member->class_name,
+                'class_id' => $member->class_id,
+                'class_name' => $member->class->name ?? '-',
                 'photo' => $member->photo,
                 'qr_code' => $member->qr_code,
                 'qr_code_svg' => $qrCodeSvg,
@@ -96,7 +99,7 @@ class MemberController extends Controller
             'gender' => 'required',
             'school_id' => 'required|exists:schools,id',
             'team' => 'required|string|max:100',
-            'class_name' => 'required|string|max:50',
+            'class_id' => 'required|exists:class_rooms,id',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ],[
             'nisn.unique' => 'NISN sudah ada.', 
@@ -109,7 +112,7 @@ class MemberController extends Controller
             'gender' => $request->gender,
             'school_id' => $request->school_id,
             'team_name' => $request->team,
-            'class_name' => $request->class_name,
+            'class_id' => $request->class_id,
         ]);
 
         if ($request->hasFile('photo')) {
@@ -119,6 +122,8 @@ class MemberController extends Controller
             $member->photo = $filename;
             $member->save();
         }
+
+        $member->load(['school', 'class']);
 
         $qrCodeSvg = (string) QrCode::size(50)->generate($member->qr_code);
 
@@ -134,7 +139,8 @@ class MemberController extends Controller
                     'school_name' => $member->school->name ?? '-',
                     'region' => $member->school->region ?? '-',
                     'team_name' => $member->team_name,
-                    'class_name' => $member->class_name,
+                    'class_id' => $member->class_id,
+                    'class_name' => $member->class->name ?? '-',
                     'photo' => $member->photo,
                     'qr_code' => $member->qr_code,
                     'qr_code_svg' => $qrCodeSvg,
