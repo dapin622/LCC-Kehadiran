@@ -79,8 +79,17 @@
     <div class="card shadow-sm h-100">
       <div class="card-body">
         <div class="d-flex align-items-center mb-2">
-          <img src="{{ asset('uploads/foto/' . $img) }}" alt="{{ $school->name }}" 
-               class="me-2 rounded" style="width:60px; height:60px; object-fit:contain;">
+          @if (!empty($school->photo) && file_exists(public_path('uploads/foto/' . $school->photo)))
+              <img src="{{ asset('uploads/foto/' . $school->photo) }}" 
+                  alt="{{ $school->name }}" 
+                  class="me-2 rounded" 
+                  style="width:60px; height:60px; object-fit:contain;">
+          @else
+              <div class="d-flex justify-content-center align-items-center rounded me-2" 
+                  style="width:60px; height:60px;">
+                  <i class="bi bi-buildings fs-2 text-secondary"></i>
+              </div>
+          @endif
           <div>
             <div class="fw-bold">{{ $total }} Anggota 
               <span class="text-success">({{ $persen }}%)</span>
@@ -128,6 +137,7 @@
 
 @push('scripts')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
