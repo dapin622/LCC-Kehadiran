@@ -783,6 +783,10 @@ table.dataTable td {
             },
              success: function (response) {
             if (response.success) {
+                
+                let oldName = response.old_name;
+                
+                // Update input field
                 row.find('.class-name').val(response.class.name);
 
                 $('#alertSuccessClass')
@@ -798,6 +802,26 @@ table.dataTable td {
 
                 $(`select[name="class_id"] option[value="${id}"]`).text(response.class.name);
                 $(`#editClass option[value="${id}"]`).text(response.class.name);
+
+                table.rows().every(function() {
+                    let rowData = this.data();
+                    let rowNode = this.node();
+                    
+                    if (rowData[4] === oldName) {
+                        rowData[4] = response.class.name;
+                        
+                        $(rowNode).find('.btn-detail').attr('data-class-name', response.class.name);
+                        $(rowNode).find('.btn-edit').attr('data-class-id', id);
+                        
+                        this.data(rowData).draw(false);
+                    }
+                });
+
+                $(`.btn-detail[data-class-name="${oldName}"]`).each(function() {
+                    $(this).attr('data-class-name', response.class.name);
+                });
+
+                table.columns.adjust().draw(false);
             }
         },
         error: function (xhr) {
@@ -821,6 +845,13 @@ table.dataTable td {
         }
         });
     });
+
+$('#addClassModal').on('shown.bs.modal', function() {
+    $('#classTable tbody tr').each(function() {
+        let input = $(this).find('.class-name');
+        input.data('old-value', input.val());
+    });
+});
 
     $(document).on('click', '.btn-delete-class', function() {
         if (!confirm('Yakin ingin menghapus kelas ini?')) return;
@@ -990,16 +1021,16 @@ $('#editMemberForm').submit(function(e){
     });
 // Detail Member
      $(document).on('click', '.btn-detail', function () {
-            $('#detailName').text($(this).data('name'));
-            $('#detailNisn').text($(this).data('nisn'));
-            $('#detailGender').text($(this).data('gender') === 'Male' ? 'Laki-Laki' : 'Perempuan');
-            $('#detailSchool').text($(this).data('school'));
-            $('#detailTeam').text($(this).data('team'));
-            $('#detailClass').text($(this).data('class-name'));
-            $('#detailRegion').text($(this).data('region'));
-            
+            $('#detailName').text($(this).attr('data-name'));
+            $('#detailNisn').text($(this).attr('data-nisn'));
+            $('#detailGender').text($(this).attr('data-gender') === 'Male' ? 'Laki-Laki' : 'Perempuan');
+            $('#detailSchool').text($(this).attr('data-school'));
+            $('#detailTeam').text($(this).attr('data-team'));
+            $('#detailClass').text($(this).attr('data-class-name'));
+            $('#detailRegion').text($(this).attr('data-region'));
+
             // Foto
-            let photo = $(this).data('photo');
+            let photo = $(this).attr('data-photo');
             let photoContainer = $('#detailPhoto').parent();
 
             if (photo) {
@@ -1014,7 +1045,7 @@ $('#editMemberForm').submit(function(e){
 
 
             // QR Code
-            let qrCodeData = $(this).data('qr');
+            let qrCodeData = $(this).attr('data-qr');
             $('#detailQr').html('');
             if (qrCodeData) {
                 let qrImage = `{!! QrCode::size(100)->generate('__QR__') !!}`.replace('__QR__', qrCodeData);
