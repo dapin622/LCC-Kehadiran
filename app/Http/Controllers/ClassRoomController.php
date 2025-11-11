@@ -39,6 +39,8 @@ class ClassRoomController extends Controller
     public function update(Request $request, $id)
     {
         $class = ClassRoom::findOrFail($id);
+
+        $oldName = $class->name;
         $request->validate([
             'name' => 'required|string|unique:class_rooms,name,' . $id,
         ], [
@@ -53,7 +55,8 @@ class ClassRoomController extends Controller
         if ($request->ajax()) {
                     return response()->json([
                         'success' => true,
-                        'class' => $class
+                        'class' => $class,
+                        'old_name' => $oldName
                     ]);
                 }     
 
