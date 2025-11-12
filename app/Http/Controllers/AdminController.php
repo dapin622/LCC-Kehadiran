@@ -12,6 +12,9 @@ class AdminController extends Controller
 {
     public function showLoginForm()
     {
+        if (Session::has('admin_id')) {
+            return redirect()->route('admin.dashboard');
+        }
         return view('login');
     }
 
