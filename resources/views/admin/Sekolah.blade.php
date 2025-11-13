@@ -118,7 +118,7 @@ table.dataTable td {
                                         <td>{{ $school->id }}</td>
                                         <td>
                                             @if($school->photo)
-                                            <img src="{{ asset('uploads/foto/'.$school->photo) }}" alt="Foto" width="60" height="60" style="object-fit: cover; border-radius: 6px;">
+                                            <img src="{{ asset('uploads/foto/'.$school->photo) }}" alt="Foto" width="70" height="70" style="object-fit: cover; border-radius: 6px;">
                                             @else
                                             <span class="text-muted">Tidak ada</span>
                                             @endif
@@ -492,7 +492,14 @@ $(document).on('click', '.btn-edit-school', function () {
     $('#editName').val($(this).data('name'));
     $('#editRegion').val($(this).data('region'));
     $('#editProvince').val($(this).data('province'));
-    $('#editPhotoPreview').attr('src', $(this).data('photo'));
+    // $('#editPhotoPreview').attr('src', $(this).data('photo'));
+
+    let photo = $(this).data('photo');
+    if (photo) {
+        $('#editPhotoPreview').attr('src', photo).show();
+    } else {
+        $('#editPhotoPreview').hide();
+    }
 
     $('#editSchoolModal').modal('show');
 });
@@ -501,9 +508,10 @@ $('#editSchoolForm').submit(function (e) {
     e.preventDefault();
     let id = $('#editSchoolId').val();
     let formData = new FormData(this);
+    formData.append('_method', 'PUT');
 
     $.ajax({
-        url: '/admin/sekolah/' + id,
+        url: '/admin/school/' + id,
         type: 'POST',
         data: formData,
         contentType: false,
@@ -592,12 +600,12 @@ $('#editSchoolForm').submit(function (e) {
                     errorMessages += '<li>' + value[0] + '</li>';
                 });
 
-                $('#alertErrorEdit')
+                $('#editAlertError')
                     .removeClass('d-none')
                     .html('<ul class="mb-0">' + errorMessages + '</ul>');
 
                 setTimeout(function () {
-                    $('#alertErrorEdit').fadeOut(function () {
+                    $('#editAlertError').fadeOut(function () {
                         $(this).addClass('d-none').show().html('');
                     });
                 }, 3000);
