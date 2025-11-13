@@ -9,8 +9,8 @@ class ClassRoomController extends Controller
 {
     public function index()
     {
-        $classes = ClassRoom::all();
-        return view('admin.member.class', compact('classes'));
+        // $classes = ClassRoom::all();
+        return redirect()->route('admin.member');
     }
 
     public function store(Request $request)
@@ -33,7 +33,7 @@ class ClassRoomController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.member.class')->with('success', 'kelas berhasil ditambahkan!');
+        return redirect()->route('admin.member')->with('success', 'kelas berhasil ditambahkan!');
     }
 
     public function update(Request $request, $id)
@@ -60,7 +60,7 @@ class ClassRoomController extends Controller
                     ]);
                 }     
 
-        return redirect()->route('admin.member.class')->with('success', 'kelas berhasil diperbarui!');
+        return redirect()->route('admin.member')->with('success', 'kelas berhasil diperbarui!');
     }
 
     public function destroy(Request $request,$id)
@@ -75,6 +75,6 @@ class ClassRoomController extends Controller
             ]);
         }
 
-        return redirect()->route('admin.member.class')->with('success', 'kelas berhasil dihapus!');
+        return redirect()->route('admin.member')->with('success', 'kelas berhasil dihapus!');
     }
 }

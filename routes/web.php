@@ -52,9 +52,9 @@ Route::delete('/admin/member/{id}', [MemberController::class, 'destroy'])->name(
 
 //kelas
 Route::get('/admin/member/class', [ClassRoomController::class, 'index'])->name('admin.member.class');
-Route::post('/admin/member/class/store', [ClassRoomController::class, 'store'])->name('admin.member.class.store');
-Route::put('/admin/member/class/{id}', [ClassRoomController::class, 'update'])->name('admin.member.class.update');
-Route::delete('/admin/member/class/{id}', [ClassRoomController::class, 'destroy'])->name('admin.member.class.destroy');
+Route::post('/class/store', [ClassRoomController::class, 'store'])->name('class.store');
+Route::put('/class/{id}', [ClassRoomController::class, 'update'])->name('class.update');
+Route::delete('/class/{id}', [ClassRoomController::class, 'destroy'])->name('class.destroy');
 
 //sekolah
 Route::get('/admin/school', [SchoolController::class, 'index'])->name('admin.sekolah');

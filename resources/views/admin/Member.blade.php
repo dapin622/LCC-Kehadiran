@@ -704,7 +704,7 @@ table.dataTable td {
         }
 
         $.ajax({
-            url: "{{ route('admin.member.class.store') }}",
+            url: "{{ route('class.store') }}",
             method: "POST",
             data: { name: name, _token: "{{ csrf_token() }}" },
             success: function(response) {
@@ -775,7 +775,7 @@ table.dataTable td {
         let name = row.find('.class-name').val();
 
         $.ajax({
-            url: `/admin/member/class/${id}`,
+            url: `/class/${id}`,
             method: 'PUT',
             data: { 
                 name: name, 
@@ -859,7 +859,7 @@ $('#addClassModal').on('shown.bs.modal', function() {
         let id = row.data('id');
 
         $.ajax({
-            url: `/admin/member/class/${id}`,
+            url: `/class/${id}`,
             method: 'DELETE',
             data: { _token: "{{ csrf_token() }}" },
             success: function (response) {
