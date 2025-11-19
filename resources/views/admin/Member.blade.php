@@ -95,12 +95,21 @@ table.dataTable td {
                                     @endforeach
                                 </select>
                             </div>
-                           <div class="w-100">
+                           <!-- <div class="w-100 me-2">
                             <div class="form-label">Tim</div>
                             <select id="filterTeam" class="form-select">
                                 <option value="">All</option>
                                 @foreach($teams as $team)
                                     <option value="{{ $team }}">{{ $team }}</option>
+                                @endforeach
+                            </select>
+                        </div> -->
+                        <div class="w-100">
+                            <div class="form-label">Kelas</div>
+                            <select id="filterClass" class="form-select">
+                                <option value="">All</option>
+                                @foreach($classes as $class)
+                                    <option value="{{ $class->name }}">{{ $class->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -514,6 +523,18 @@ table.dataTable td {
             table.column(3).search('').draw();
         }
         });
+        $('#filterClass').on('change', function () {
+            table.column(4).search(this.value).draw();
+        });
+
+        $('#filterClass').on('change', function () {
+            var val = this.value;
+            if (val) {
+                table.column(4).search('^' + val + '$', true, false).draw();
+            } else {
+                table.column(4).search('').draw();
+            }
+        });
         
 
         setTimeout(function(){
@@ -721,6 +742,8 @@ table.dataTable td {
                 `);
 
                 $('select[name="class_id"]').append(`<option value="${response.class.id}">${response.class.name}</option>`);
+    
+                $('#filterClass').append(`<option value="${response.class.name}">${response.class.name}</option>`);
 
                 $('#newClassName').val('');
 
@@ -772,6 +795,7 @@ table.dataTable td {
     $(document).on('click', '.btn-update-class', function() {
         let row = $(this).closest('tr');
         let id = row.data('id');
+        let oldName = row.find('.class-name').data('old-value'); 
         let name = row.find('.class-name').val();
 
         $.ajax({
@@ -802,6 +826,8 @@ table.dataTable td {
 
                 $(`select[name="class_id"] option[value="${id}"]`).text(response.class.name);
                 $(`#editClass option[value="${id}"]`).text(response.class.name);
+
+                $(`#filterClass option[value="${oldName}"]`).val(response.class.name).text(response.class.name);
 
                 table.rows().every(function() {
                     let rowData = this.data();
@@ -857,6 +883,7 @@ $('#addClassModal').on('shown.bs.modal', function() {
         if (!confirm('Yakin ingin menghapus kelas ini?')) return;
         let row = $(this).closest('tr');
         let id = row.data('id');
+        let className = row.find('.class-name').val(); 
 
         $.ajax({
             url: `/class/${id}`,
@@ -876,6 +903,12 @@ $('#addClassModal').on('shown.bs.modal', function() {
                 }, 3000);
 
                 $(`select[name="class_id"] option[value="${id}"]`).remove();
+
+                $(`#filterClass option[value="${className}"]`).remove();
+
+                if ($('#filterClass').val() === className) {
+                    $('#filterClass').val('').trigger('change');
+                }
             }
         },
         error: function () {
