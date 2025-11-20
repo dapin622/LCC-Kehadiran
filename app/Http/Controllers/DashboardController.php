@@ -11,7 +11,7 @@ class DashboardController extends Controller
 {
     public function getMembers()
     {
-        $members = Member::with('school')->get();
+        $members = Member::with('school','class')->get();
         return response()->json(['data' => $members]);
     }
 

@@ -124,7 +124,7 @@
         <th>No</th>
         <th>Nama Anggota</th>
         <th>Nama Sekolah</th>
-        <th>Tim</th>
+        <th>Kelas</th>
         <th>Wilayah</th>
       </tr>
     </thead>
@@ -156,7 +156,7 @@ $(document).ready(function() {
       },
       { data: 'name' },
       { data: 'school.name', defaultContent: '-' },
-      { data: 'team_name' },
+      { data: 'class.name', defaultContent: '-' },
       { data: 'school.region', defaultContent: '-' }
     ],
     pageLength: 5,
