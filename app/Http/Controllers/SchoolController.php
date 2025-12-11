@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\School;
 use Illuminate\Http\Request;
+use App\Exports\SchoolExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SchoolController extends Controller
 {
@@ -137,5 +139,11 @@ class SchoolController extends Controller
     }
         return redirect()->route('admin.sekolah')->with('success', 'Sekolah berhasil dihapus');
     }
+
+    public function exportExcel()
+    {
+        return Excel::download(new SchoolExport, 'data-sekolah.xlsx');
+    }
+
   
 }

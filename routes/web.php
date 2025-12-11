@@ -48,6 +48,7 @@ Route::post('/admin/member/store', [MemberController::class, 'store'])->name('ad
 // Route::get('/admin/member/{id}/edit', [MemberController::class, 'edit'])->name('admin.member.edit');
 Route::put('/admin/member/{id}', [MemberController::class, 'update'])->name('admin.member.update');
 Route::delete('/admin/member/{id}', [MemberController::class, 'destroy'])->name('admin.member.destroy');
+Route::get('/admin/member/export', [MemberController::class, 'exportExcel'])->name('admin.member.export');
 
 
 //kelas
@@ -63,6 +64,7 @@ Route::put('/admin/school/{id}', [SchoolController::class, 'update'])->name('adm
 Route::post('/admin/school/store', [SchoolController::class, 'store'])->name('admin.sekolah.store');
 Route::get('/admin/school/filter', [SchoolController::class, 'filter'])->name('admin.sekolah.filter');
 Route::delete('/admin/school/{id}', [SchoolController::class, 'destroy'])->name('admin.sekolah.destroy');
+Route::get('/admin/sekolah/export', [SchoolController::class, 'exportExcel'])->name('admin.sekolah.export');
 
 
 Route::post('/logout', [AdminController::class, 'logout'])->name('logout');

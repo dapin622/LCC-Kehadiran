@@ -8,6 +8,9 @@ use App\Models\ClassRoom;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Exports\MembersExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class MemberController extends Controller
 {
@@ -168,4 +171,8 @@ class MemberController extends Controller
             return redirect()->route('admin.member')->with('success', 'Siswa berhasil dihapus');
     }
 
+    public function exportExcel()
+    {
+        return Excel::download(new MembersExport, 'data_siswa.xlsx');
+    }
 }
