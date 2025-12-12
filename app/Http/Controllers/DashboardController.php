@@ -17,8 +17,12 @@ class DashboardController extends Controller
 
     public function index()
     {
+    $total = Member::count();
+    
+    $hadir = $total;        
+    $tidakHadir = 0;
     $schools = School::withCount('members')->get();
 
-    return view('admin.dashboard', compact('schools'));
+    return view('admin.dashboard', compact('schools','total','hadir','tidakHadir'));
     }
 }

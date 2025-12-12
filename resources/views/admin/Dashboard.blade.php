@@ -6,26 +6,17 @@
 
 @php
   // Data utama
-  $total = 732;
-  $hadir = 516;
-  $tidakHadir = $total - $hadir;
-
-  $persenHadir = round(($hadir / $total) * 100, 2);
-  $persenTidak = round(($tidakHadir / $total) * 100, 2);
+  $persenHadir = $total > 0 ? round(($hadir / $total) * 100, 2) : 0;
+  $persenTidak = $total > 0 ? round(($tidakHadir / $total) * 100, 2) : 0;
 @endphp
 
 <!-- Header Judul -->
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h5 class="fw-bold mb-0">
-      LOMBA CERDAS CERMAT PERIODE 2025 - 2026
-    </h5>
-    <small class="text-success d-block mt-1">Checked every 3 Second</small>
-  </div>
-  <div class="d-flex align-items-center ms-3">
-    <select class="form-select form-select-sm w-auto">
-      <option>LOMBA CERDAS CERMAT</option>
-    </select>
+    <h2 class="fw-bold mb-0">
+      LOMBA CERDAS CERMAT
+    </h2>
+
   </div>
 </div>
 
@@ -48,7 +39,7 @@
       <h3 class="fw-bold text-success mb-2">{{ $hadir }} Anggota</h3>
       <div class="text-muted mb-2">Persentase ({{ $persenHadir }}%)</div>
       <div class="progress" style="height:6px;">
-        <div class="progress-bar bg-success" style="width: {{ $persenHadir }}%"></div>
+        <div class="progress-bar bg-success" style="width: '{{ $persenHadir }}%'"></div>
       </div>
     </div>
   </div>
@@ -59,7 +50,7 @@
       <h3 class="fw-bold text-danger mb-2">{{ $tidakHadir }} Anggota</h3>
       <div class="text-muted mb-2">Persentase ({{ $persenTidak }}%)</div>
       <div class="progress" style="height:6px;">
-        <div class="progress-bar bg-danger" style="width: {{ $persenTidak }}%"></div>
+        <div class="progress-bar bg-danger" style="width: '{{ $persenTidak }}%'"></div>
       </div>
     </div>
   </div>
