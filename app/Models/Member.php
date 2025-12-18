@@ -16,7 +16,7 @@ class Member extends Model
         'nisn',
         'gender',
         'school_id',   
-        'team_name',
+        'team_id',
         'class_id',
         'photo',
         'qr_code',
@@ -30,6 +30,11 @@ class Member extends Model
     public function class()
     {
         return $this->belongsTo(ClassRoom::class, 'class_id');
+    }
+
+    public function team()
+    {
+        return $this->belongsTo(Team::class);
     }
 
 }

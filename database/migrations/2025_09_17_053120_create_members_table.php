@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nisn')->unique();
             $table->enum('gender', ['Male', 'Female']);
             $table->foreignId('school_id')->constrained('schools')->onDelete('cascade');
-            $table->string('team_name');
+            $table->foreignId('team_id')->constrained('teams')->onDelete('cascade');
             $table->foreignId('class_id')->nullable()->constrained('class_rooms')->onDelete('set null');
             $table->string('photo')->nullable();
             $table->string('qr_code')->nullable();

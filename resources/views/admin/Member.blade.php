@@ -144,7 +144,7 @@ table.dataTable td {
                                             </div>
                                         </td>
                                         <td>{{ $member->school->name ?? '-' }}</td>
-                                        <td>{{ $member->team_name }}</td>
+                                        <td>{{ $member->team->name ?? '-' }}</td>
                                         <td>{{ $member->class->name ?? '-'  }}</td>
                                         <td>{{ $member->school->region ?? '-' }}</td>
                                       
@@ -158,7 +158,7 @@ table.dataTable td {
                                             data-nisn="{{ $member->nisn }}"
                                             data-gender="{{ $member->gender }}"
                                             data-school="{{ $member->school->name ?? '-' }}"
-                                            data-team="{{ $member->team_name }}"
+                                            data-team="{{ $member->team->name ?? '-' }}"
                                             data-class-name="{{ $member->class->name ?? '-'  }}"
                                             data-region="{{ $member->school->region ?? '-' }}"
                                             data-photo="{{ $member->photo ? asset('uploads/foto/'.$member->photo) : '' }}"
@@ -176,7 +176,7 @@ table.dataTable td {
                                             data-nisn="{{ $member->nisn }}"
                                             data-gender="{{ $member->gender }}"
                                             data-school="{{ $member->school_id }}"
-                                            data-team="{{ $member->team_name }}"
+                                            data-team="{{ $member->team_id }}"
                                             data-class-id="{{ $member->class_id }}"
                                             data-qr="{{ $member->qr_code }}"
                                             data-bs-toggle="modal"
@@ -252,7 +252,12 @@ table.dataTable td {
 
                             <div class="col-md-6">
                                 <label class="form-label">Tim</label>
-                                <input type="text" name="team" class="form-control" required>
+                                <select name="team_id" class="form-select" required>
+                                    <option value="">Pilih Tim</option>
+                                    @foreach($teams as $team)
+                                        <option value="{{ $team->id }}">{{ $team->name }}</option>
+                                    @endforeach
+                                </select>
                             </div>
 
                             <div class="col-md-6">
@@ -391,7 +396,11 @@ table.dataTable td {
 
                                 <div class="col-md-6">
                                 <label class="form-label">Tim</label>
-                                <input type="text" name="team" id="editTeam" class="form-control" required>
+                                <select name="team_id" id="editTeam" class="form-select" required>
+                                    @foreach($teams as $team)
+                                    <option value="{{ $team->id }}">{{ $team->name }}</option>
+                                    @endforeach
+                                </select>
                                 </div>
 
                                 <div class="col-md-6">
@@ -609,7 +618,7 @@ table.dataTable td {
                         data-nisn="${member.nisn}"
                         data-gender="${member.gender}"
                         data-school="${member.school_id}"
-                        data-team="${member.team_name}"
+                        data-team="${member.team_id}"
                         data-class-id="${member.class_id}"
                         data-qr="${member.qr_code}"
                         data-bs-toggle="modal"
@@ -994,7 +1003,7 @@ $('#editMemberForm').submit(function(e){
                     data-nisn="${member.nisn}"
                     data-gender="${member.gender}"
                     data-school="${member.school_id}"
-                    data-team="${member.team_name}"
+                    data-team="${member.team_id}"
                     data-class-id="${member.class_id}"
                     data-qr="${member.qr_code}"
                     data-bs-toggle="modal"

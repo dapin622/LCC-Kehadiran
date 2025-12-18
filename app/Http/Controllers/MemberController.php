@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Team;
 use App\Models\Member;
 use App\Models\School;
 use App\Models\ClassRoom;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Exports\MembersExport;
 use Maatwebsite\Excel\Facades\Excel;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 
 class MemberController extends Controller
 {
     public function index()
     {
-        $members = Member::with('school')->get();
+        $members = Member::with('school','class','team')->get();
         $schools = School::all();
         $classes = ClassRoom::all();
-        $teams = Member::select('team_name')->distinct()->pluck('team_name'); 
+        $teams = Team::all();
         return view('admin.member', compact('members', 'schools', 'classes', 'teams'));    
     }
     
@@ -38,7 +39,7 @@ class MemberController extends Controller
         'nisn' => 'required|string|max:20|unique:members',
         'gender' => 'required',
         'school_id' => 'required|exists:schools,id',
-        'team' => 'required|string|max:100',
+        'team_id' => 'required|exists:teams,id',
         'class_id' => 'required|exists:class_rooms,id',
         'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
     ],[
@@ -51,7 +52,7 @@ class MemberController extends Controller
         $member->nisn = $request->nisn;
         $member->gender = $request->gender;
         $member->school_id = $request->school_id;
-        $member->team_name = $request->team;
+        $member->team_id = $request->team_id;
         $member->class_id = $request->class_id;
         $member->qr_code = $request->qr_code ?? Str::uuid();
 
@@ -78,7 +79,7 @@ class MemberController extends Controller
                 'school_id'   => $member->school_id,
                 'school_name' => $member->school->name ?? '-',
                 'region' => $member->school->region ?? '-',
-                'team_name' => $member->team_name,
+                'team_name' => $member->team->name ?? '-',
                 'class_id' => $member->class_id,
                 'class_name' => $member->class->name ?? '-',
                 'photo' => $member->photo,
@@ -101,7 +102,7 @@ class MemberController extends Controller
             'nisn' => 'required|string|max:20|unique:members,nisn,'.$id,
             'gender' => 'required',
             'school_id' => 'required|exists:schools,id',
-            'team' => 'required|string|max:100',
+            'team_id' => 'required|exists:teams,id',
             'class_id' => 'required|exists:class_rooms,id',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ],[
@@ -114,7 +115,7 @@ class MemberController extends Controller
             'nisn' => $request->nisn,
             'gender' => $request->gender,
             'school_id' => $request->school_id,
-            'team_name' => $request->team,
+            'team_id' => $request->team_id,
             'class_id' => $request->class_id,
         ]);
 
@@ -141,7 +142,7 @@ class MemberController extends Controller
                     'school_id'   => $member->school_id,           
                     'school_name' => $member->school->name ?? '-',
                     'region' => $member->school->region ?? '-',
-                    'team_name' => $member->team_name,
+                    'team_name' => $member->team->name ?? '-',
                     'class_id' => $member->class_id,
                     'class_name' => $member->class->name ?? '-',
                     'photo' => $member->photo,
