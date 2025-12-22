@@ -191,6 +191,7 @@ table.dataTable td {
           <div class="mb-3">
             <label class="form-label">Foto Sekolah</label>
             <input type="file" name="photo" class="form-control">
+            <small class="text-muted mt-2">Format: JPG, PNG, atau SVG &middot; Maks: 5MB</small>
         </div>
 
         </div>
@@ -239,6 +240,7 @@ table.dataTable td {
             <label class="form-label">Foto Sekolah</label><br>
             <img id="editPhotoPreview" src="" width="60" height="60" class="mb-2 rounded" style="object-fit:cover; display:none;">
             <input type="file" name="photo" id="editPhoto" class="form-control">
+            <small class="text-muted mt-2">Format: JPG, PNG, atau SVG &middot; Maks: 5MB</small>
           </div>
         </div>
 

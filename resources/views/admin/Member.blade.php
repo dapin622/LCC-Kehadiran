@@ -278,6 +278,7 @@ table.dataTable td {
                             <div class="col-md-6">
                             <label class="form-label">Foto</label>
                             <input type="file" name="photo" class="form-control">
+                            <small class="text-muted mt-2">Format: JPG, PNG, atau SVG &middot; Maks: 5MB</small>
                             </div>
                         </div>
                         </div>
@@ -421,6 +422,7 @@ table.dataTable td {
                                 <div class="col-md-6">
                                 <label class="form-label">Foto</label>
                                 <input type="file" name="photo" id="editPhoto" class="form-control">
+                                <small class="text-muted mt-2">Format: JPG, PNG, atau SVG &middot; Maks: 5MB</small>
                                 </div>
 
                             </div>

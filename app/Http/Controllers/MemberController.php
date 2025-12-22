@@ -41,7 +41,7 @@ class MemberController extends Controller
         'school_id' => 'required|exists:schools,id',
         'team_id' => 'required|exists:teams,id',
         'class_id' => 'required|exists:class_rooms,id',
-        'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        'photo' => 'nullable|image|mimes:jpg,jpeg,png,svg|max:5048',
     ],[
             'nisn.unique' => 'NISN sudah ada.', 
             'nisn.required' => 'NISN wajib diisi.',
@@ -79,6 +79,7 @@ class MemberController extends Controller
                 'school_id'   => $member->school_id,
                 'school_name' => $member->school->name ?? '-',
                 'region' => $member->school->region ?? '-',
+                'team_id'     => $member->team_id,
                 'team_name' => $member->team->name ?? '-',
                 'class_id' => $member->class_id,
                 'class_name' => $member->class->name ?? '-',
@@ -104,7 +105,7 @@ class MemberController extends Controller
             'school_id' => 'required|exists:schools,id',
             'team_id' => 'required|exists:teams,id',
             'class_id' => 'required|exists:class_rooms,id',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png,svg|max:5048',
         ],[
             'nisn.unique' => 'NISN sudah ada.', 
             'nisn.required' => 'NISN wajib diisi.',
@@ -127,7 +128,7 @@ class MemberController extends Controller
             $member->save();
         }
 
-        $member->load(['school', 'class']);
+        $member->load(['school', 'class', 'team']);
 
         $qrCodeSvg = (string) QrCode::size(50)->generate($member->qr_code);
 
@@ -142,6 +143,7 @@ class MemberController extends Controller
                     'school_id'   => $member->school_id,           
                     'school_name' => $member->school->name ?? '-',
                     'region' => $member->school->region ?? '-',
+                    'team_id'     => $member->team_id, 
                     'team_name' => $member->team->name ?? '-',
                     'class_id' => $member->class_id,
                     'class_name' => $member->class->name ?? '-',

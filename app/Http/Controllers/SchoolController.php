@@ -29,11 +29,10 @@ class SchoolController extends Controller
             'name' => 'required|string|max:255|unique:schools,name',
             'region' => 'required|string|max:255',
             'province' => 'required|string|max:255',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png,svg|max:5048',
         ], [
             'name.unique' => 'Nama sekolah sudah ada.', 
             'name.required' => 'Nama sekolah wajib diisi.',
-            'photo.image' => 'File harus berupa gambar (jpg, jpeg, png).',
         ]);
 
         $photoPath = null;
@@ -72,7 +71,7 @@ class SchoolController extends Controller
             'name' => 'required|string|max:255|unique:schools,name,'.$id,
             'region' => 'required|string|max:255',
             'province' => 'required|string|max:255',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png,svg|max:5048',
         ]);
 
         $school->update([
