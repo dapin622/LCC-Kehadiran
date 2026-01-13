@@ -729,11 +729,7 @@ table.dataTable td {
 
 //kelas
     $('#addClassBtn').on('click', function() {
-        let name = $('#newClassName').val().trim();
-        if (!name) {
-            showClassAlert('Nama kelas tidak boleh kosong!', 'danger');
-            return;
-        }
+        let name = $('#newClassName').val();
 
         $.ajax({
             url: "{{ route('class.store') }}",

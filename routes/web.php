@@ -2,12 +2,18 @@
 
 use App\Models\Admin;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\ClassRoomController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\TambahMemberController;
+use App\Http\Controllers\UserAccountController;
+use App\Http\Controllers\DashboardUserController;
+use App\Http\Controllers\EventParticipantController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -24,17 +30,14 @@ use App\Http\Controllers\TambahMemberController;
 //     return view('welcome');
 // });
 
-//Login Admin
-Route::get('/login', [AdminController::class, 'showLoginForm'])->name('login');
+//Login
 
-Route::post('/login', [AdminController::class, 'login'])->name('login.submit');
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login']);
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
-Route::middleware(['admin.auth'])->group(function () {
-
-Route::get('admin/dashboard', function () {
-    return view('admin.dashboard');
-})->name('admin.dashboard');
+Route::middleware(['auth:admin'])->group(function () {
 
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 Route::get('/admin/dashboard/member', [DashboardController::class, 'getMembers'])->name('admin.dashboard.member');
@@ -42,10 +45,7 @@ Route::get('/admin/dashboard/member', [DashboardController::class, 'getMembers']
 
 //member
 Route::get('/admin/member', [MemberController::class, 'index'])->name('admin.member'); 
-// Route::get('/admin/member/index', [MemberController::class, 'index'])->name('admin.member');
-// Route::get('/admin/member/create', [MemberController::class, 'create'])->name('admin.member.create');
 Route::post('/admin/member/store', [MemberController::class, 'store'])->name('admin.member.store');
-// Route::get('/admin/member/{id}/edit', [MemberController::class, 'edit'])->name('admin.member.edit');
 Route::put('/admin/member/{id}', [MemberController::class, 'update'])->name('admin.member.update');
 Route::delete('/admin/member/{id}', [MemberController::class, 'destroy'])->name('admin.member.destroy');
 Route::get('/admin/member/export', [MemberController::class, 'exportExcel'])->name('admin.member.export');
@@ -66,7 +66,34 @@ Route::get('/admin/school/filter', [SchoolController::class, 'filter'])->name('a
 Route::delete('/admin/school/{id}', [SchoolController::class, 'destroy'])->name('admin.sekolah.destroy');
 Route::get('/admin/sekolah/export', [SchoolController::class, 'exportExcel'])->name('admin.sekolah.export');
 
+//event
+Route::get('/admin/event', [EventController::class, 'index'])->name('admin.event');
+Route::post('/admin/event', [EventController::class, 'store'])->name('admin.event.store');
+Route::put('/admin/event/{id}', [EventController::class, 'update'])->name('admin.event.update');
+Route::delete('/admin/event/{id}', [EventController::class, 'destroy'])->name('admin.event.destroy');
 
-Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
+//event participant
+Route::get('/admin/event/{event}/participants', [EventParticipantController::class, 'index'])->name('admin.event_participants');
 
+//team
+Route::post('/team/store', [TeamController::class, 'store'])->name('team.store');
+Route::put('/team/update/{id}', [TeamController::class, 'update'])->name('team.update');
+Route::delete('/team/delete/{id}', [TeamController::class, 'destroy'])->name('team.destroy');
+
+//Create Account user
+Route::get('/admin/user_account', [UserAccountController::class, 'index'])->name('admin.user_account');
+Route::post('/admin/user_account', [UserAccountController::class, 'store'])->name('admin.user_account.store');
+Route::put('/admin/users_account/{id}', [UserAccountController::class, 'update'])->name('admin.user_account.update');
+Route::delete('/admin/users_account/{id}', [UserAccountController::class, 'destroy'])->name('admin.user_account.destroy');
+
+
+});
+
+
+//user buat disini
+///......
+
+Route::middleware(['auth:web'])->group(function () {
+    Route::get('/user/dashboard', [DashboardUserController::class, 'index'])
+        ->name('user.dashboard');
 });

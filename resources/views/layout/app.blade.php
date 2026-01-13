@@ -60,7 +60,7 @@
           </a>
         </li>
         <li class="nav-item mb-2">
-          <a href="#" class="nav-link">
+          <a href="{{ route('admin.event') }}" class="nav-link align-items-center  {{ request()->routeIs('admin.event') ? 'active' : '' }}">
         <span class="iconify me-2" data-icon="mdi:calendar" style="font-size: 20px;"></span> Event
           </a>
 
@@ -73,6 +73,11 @@
           <li class="nav-item mb-2">
           <a href="{{ route('admin.sekolah') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.sekolah') ? 'active' : '' }}">
             <span class="iconify me-2" data-icon="mdi:school" style="font-size: 20px;"></span> Sekolah
+          </a>
+        </li>
+        <li class="nav-item mb-2">
+          <a href="{{ route('admin.user_account') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.user_account') ? 'active' : '' }}">
+            <span class="iconify me-2" data-icon="mdi:people" style="font-size: 20px;"></span> Account user
           </a>
         </li>
       </ul>

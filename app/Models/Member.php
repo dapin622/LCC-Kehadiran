@@ -37,4 +37,15 @@ class Member extends Model
         return $this->belongsTo(Team::class);
     }
 
+     public function user()
+    {
+        return $this->hasOne(User::class);
+    }
+
+    public function participants()
+    {
+        return $this->hasMany(EventParticipant::class);
+    }
+
+
 }
