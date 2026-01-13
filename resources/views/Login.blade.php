@@ -42,8 +42,13 @@
       .card-lg {
         max-width: 600px;
         margin: 100px auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 
       }
+      .page-center {
+        background-color: #ffffffff;
+      }
+
     </style>
   </head>
   <body class="d-flex flex-column">
