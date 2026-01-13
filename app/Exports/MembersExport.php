@@ -11,7 +11,7 @@ class MembersExport implements FromCollection, WithHeadings, WithMapping
 {
     public function collection()
     {
-        return Member::with('school', 'class')->get();
+        return Member::with('school', 'class', 'team')->get();
     }
 
     public function headings(): array
@@ -36,7 +36,7 @@ class MembersExport implements FromCollection, WithHeadings, WithMapping
             $member->nisn,
             $member->gender,
             $member->school->name ?? '-',
-            $member->team_name,
+            $member->team->name ?? '-',
             $member->class->name ?? '-',
             $member->qr_code,
         ];
