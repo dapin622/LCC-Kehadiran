@@ -25,8 +25,15 @@ class EventController extends Controller
             'school_id' => 'required|exists:schools,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            
+            'attendance_token' => 'nullable|string|max:100',
+            'attendance_start' => 'nullable|date',
+            'attendance_end' => 'nullable|date|after_or_equal:attendance_start',
+            'is_attendance_active' => 'boolean',
         ], [
-            'team_id.unique' => 'Nama tim sudah ada.', 
+            'school_id.required' => 'Sekolah wajib dipilih.',
+            'end_date.after_or_equal' => 'Tanggal selesai tidak boleh sebelum tanggal mulai.',
+            'attendance_end.after_or_equal' => 'Waktu absensi selesai tidak boleh sebelum waktu mulai.',
         ]);
 
         $event = Event::create([
@@ -75,6 +82,15 @@ class EventController extends Controller
             'school_id' => 'required|exists:schools,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+
+            'attendance_token' => 'nullable|string|max:100',
+            'attendance_start' => 'nullable|date',
+            'attendance_end' => 'nullable|date|after_or_equal:attendance_start',
+            'is_attendance_active' => 'boolean',
+        ], [
+            'school_id.required' => 'Sekolah wajib dipilih.',
+            'end_date.after_or_equal' => 'Waktu selesai tidak boleh sebelum waktu mulai.',
+            'attendance_end.after_or_equal' => 'Waktu absensi selesai tidak boleh sebelum waktu mulai.',
         ]);
 
         $event = Event::findOrFail($id);

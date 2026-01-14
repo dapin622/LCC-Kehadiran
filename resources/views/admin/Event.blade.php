@@ -1,7 +1,17 @@
 @extends('layout.app')
 
 @section('content')
-
+<style>
+    .alert-danger ul {
+        list-style-type: none; 
+        padding-left: 0;       
+        margin-bottom: 0;
+    }
+    .alert-danger li {
+        margin-left: 0;
+    }
+    
+</style>
 
     <div class="page-header d-print-none">
         <div class="container-xl">
@@ -217,12 +227,14 @@
 
           <div class="mb-3">
             <label class="form-label">Tanggal Mulai</label>
-            <input type="datetime-local" name="start_date" class="form-control" required>
+            <input type="datetime-local" name="start_date" id="startDate"class="form-control" required>
           </div>
 
           <div class="mb-3">
             <label class="form-label">Tanggal Selesai</label>
-            <input type="datetime-local" name="end_date" class="form-control" required>
+            <input type="datetime-local" name="end_date" id="endDate" class="form-control" required>
+            <div class="invalid-feedback" id="endDateError"></div>
+
           </div>
 
           <hr>
@@ -249,16 +261,17 @@
                 </div>
             </div> -->
 
-            <div class="row mt-3">
-                <div class="col-md-6">
+            
+                <div class="mb-3">
                     <label>Absensi Dibuka</label>
-                    <input type="datetime-local" name="attendance_start" class="form-control">
+                    <input type="datetime-local" name="attendance_start" id="attendanceStart" class="form-control">
                 </div>
-                <div class="col-md-6">
+                <div class="mb-3">
                     <label>Absensi Ditutup</label>
-                    <input type="datetime-local" name="attendance_end" class="form-control">
+                    <input type="datetime-local" name="attendance_end" id="attendanceEnd" class="form-control">
+                    <div class="invalid-feedback" id="attendanceEndError"></div>
                 </div>
-            </div>
+           
 
             <div class="form-check mt-3">
                 <input class="form-check-input" type="checkbox"
@@ -423,6 +436,8 @@
           <div class="mb-3">
             <label class="form-label">Tanggal Selesai</label>
             <input type="datetime-local" name="end_date" id="editEndDate" class="form-control" required>
+            <div class="invalid-feedback" id="editEndDateError"></div>
+
           </div>
 
            <hr>
@@ -449,16 +464,17 @@
                 </div>
             </div> -->
 
-            <div class="row mt-3">
-                <div class="col-md-6">
+            
+                <div class="mb-3">
                     <label>Absensi Dibuka</label>
                     <input type="datetime-local" name="attendance_start" id="editAbsenStart" class="form-control">
                 </div>
-                <div class="col-md-6">
+                <div class="mb-3">
                     <label>Absensi Ditutup</label>
                     <input type="datetime-local" name="attendance_end" id="editAbsenEnd" class="form-control">
+                    <div class="invalid-feedback" id="editAttendanceEndError"></div>
                 </div>
-            </div>
+           
 
             <div class="form-check mt-3">
                 <input class="form-check-input" type="checkbox"
@@ -525,10 +541,114 @@ $(document).ready(function(){
         });
     }, 3000);
 
+    function validateEventTime(startSelector, endSelector, errorSelector) {
+        const start = $(startSelector).val();
+        const end   = $(endSelector).val();
+
+        if (!start || !end) return true;
+
+        if (start === end) {
+            $(endSelector).addClass('is-invalid');
+            $(errorSelector).text('Waktu selesai tidak boleh sama dengan waktu mulai');
+            return false;
+        } else {
+            $(endSelector).removeClass('is-invalid');
+            $(errorSelector).text('');
+            return true;
+        }
+    }
+
+    $('#startDate, #endDate').on('change', function () {
+        validateEventTime('#startDate', '#endDate', '#endDateError');
+    });
+    $('#editStartDate, #editEndDate').on('change', function () {
+        validateEventTime(
+            '#editStartDate',
+            '#editEndDate',
+            '#editEndDateError'
+        );
+    });
+
+    function validateAttendanceTime(
+        eventStartSel,
+        eventEndSel,
+        absenStartSel,
+        absenEndSel,
+        errorSel
+    ) {
+        const eventStart = $(eventStartSel).val();
+        const eventEnd   = $(eventEndSel).val();
+        const absenStart = $(absenStartSel).val();
+        const absenEnd   = $(absenEndSel).val();
+
+        if (!absenStart || !absenEnd) return true;
+
+        if (absenStart === absenEnd) {
+            $(absenEndSel).addClass('is-invalid');
+            $(errorSel).text('Waktu absensi ditutup tidak boleh sama dengan waktu dibuka');
+            return false;
+        }
+
+        if (absenStart > absenEnd) {
+            $(absenEndSel).addClass('is-invalid');
+            $(errorSel).text('Waktu absensi ditutup tidak boleh sebelum waktu dibuka');
+            return false;
+        }
+
+        if (eventStart && absenStart < eventStart) {
+            $(absenEndSel).addClass('is-invalid');
+            $(errorSel).text('Waktu absensi tidak boleh sebelum event dimulai');
+            return false;
+        }
+
+        if (eventEnd && absenEnd > eventEnd) {
+            $(absenEndSel).addClass('is-invalid');
+            $(errorSel).text('Waktu absensi tidak boleh melebihi waktu event');
+            return false;
+        }
+
+        $(absenEndSel).removeClass('is-invalid');
+        $(errorSel).text('');
+        return true;
+    }
+    $('#attendanceStart, #attendanceEnd, #startDate, #endDate').on('change', function () {
+        validateAttendanceTime(
+            '#startDate',
+            '#endDate',
+            '#attendanceStart',
+            '#attendanceEnd',
+            '#attendanceEndError'
+        );
+    });
+    $('#editAbsenStart, #editAbsenEnd, #editStartDate, #editEndDate').on('change', function () {
+        validateAttendanceTime(
+            '#editStartDate',
+            '#editEndDate',
+            '#editAbsenStart',
+            '#editAbsenEnd',
+            '#editAttendanceEndError'
+        );
+    });
+
+
+
 
     // ADD EVENT
    $('#addEventForm').submit(function(e){
     e.preventDefault();
+    if (!validateEventTime('#startDate', '#endDate', '#endDateError')) {
+        return;
+    }
+    if (!validateAttendanceTime(
+        '#startDate',
+        '#endDate',
+        '#attendanceStart',
+        '#attendanceEnd',
+        '#attendanceEndError'
+    )) {
+        return;
+    }
+
 
     $.ajax({
         url: $(this).attr('action'),
@@ -648,7 +768,12 @@ $(document).on('click', '.absenBtn', function () {
     let active = $(this).data('active');
 
     $('#viewToken').text(token ?? '-');
-    $('#viewTime').text( start && end ? `${formatTimeNoT(start)} s/d ${formatTimeNoT(end)}`: '-');
+    $('#viewTime').html(
+        start && end
+            ? `<p class="mb-1">Mulai : ${formatTimeNoT(start)}</p>
+            <p class="mb-0">Selesai : ${formatTimeNoT(end)}</p>`
+            : '-'
+    );
 
     if (active == 1) {
         $('#viewStatus')
@@ -887,6 +1012,24 @@ $('#addTeamBtn').click(function () {
 
     $('#editEventForm').submit(function(e){
     e.preventDefault();
+      if (!validateEventTime(
+        '#editStartDate',
+        '#editEndDate',
+        '#editEndDateError'
+    )) {
+        return;
+    }
+
+    if (!validateAttendanceTime(
+        '#editStartDate',
+        '#editEndDate',
+        '#editAbsenStart',
+        '#editAbsenEnd',
+        '#editAttendanceEndError'
+    )) {
+        return;
+    }
+
 
     let id = $('#editEventId').val();
 
