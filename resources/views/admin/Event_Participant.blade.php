@@ -115,13 +115,31 @@
                                 <td>{{ $member->name }}</td>
                                 <td>
                                     @if($member->participants->isNotEmpty())
-                                        <span class="badge bg-success">
-                                            {{ ucfirst($member->participants->first()->status) }}
-                                        </span>
+                                        @php
+                                            $participant = $member->participants->first();
+                                            $status = $participant->attendance_status;
+                                        @endphp
+
+                                        @if($status === 'hadir')
+                                            <span class="badge bg-success">Hadir</span>
+
+                                        @elseif($status === 'terlambat')
+                                            <span class="badge bg-warning text-dark">Terlambat</span>
+
+                                        @elseif($status === 'izin')
+                                            <span class="badge bg-info">Izin</span>
+
+                                        @elseif($status === 'tidak_hadir')
+                                            <span class="badge bg-danger">Tidak Hadir</span>
+                                        @endif
+
+                                        @if($participant->attended_at)
+                                            <div class="text-muted small mt-1">
+                                                Absen pukul {{ $participant->attended_at->format('H:i') }}
+                                            </div>
+                                        @endif
                                     @else
-                                        <span class="badge bg-secondary">
-                                            Belum Absen
-                                        </span>
+                                        <span class="badge bg-secondary">Belum Absen</span>
                                     @endif
                                 </td>
                             </tr>
@@ -168,11 +186,11 @@ $(document).ready(function(){
     });
 
     $('#filterHadir').on('change', function () {
-        table.column(1).search(this.value).draw();
+        table.column(2).search(this.value).draw();
     });
 
     $("#filterTidakHadir").on("change", function() {
-        table.column(2).search(this.value).draw();
+        table.column(3).search(this.value).draw();
     });
 
     

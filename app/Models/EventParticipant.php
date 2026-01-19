@@ -13,7 +13,11 @@ class EventParticipant extends Model
         'event_id',
         'member_id',
         'status',
-        'participated_at',
+        'attended_at',
+    ];
+
+    protected $casts = [
+        'attended_at' => 'datetime',
     ];
 
     public function event()
@@ -25,4 +29,24 @@ class EventParticipant extends Model
     {
         return $this->belongsTo(Member::class);
     }
+
+    public function getAttendanceStatusAttribute()
+    {
+        if (!$this->attended_at) {
+            return 'belum_absen';
+        }
+
+        if ($this->status === 'izin') {
+            return 'izin';
+        }
+
+        if ($this->event && $this->event->attendance_end) {
+            if ($this->attended_at->gt($this->event->attendance_end)) {
+                return 'terlambat';
+            }
+        }
+
+        return 'hadir';
+    }
+
 }

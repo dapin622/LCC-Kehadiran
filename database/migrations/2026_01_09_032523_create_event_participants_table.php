@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('member_id')->constrained()->cascadeOnDelete();
 
             $table->enum('status', ['hadir', 'izin', 'tidak_hadir'])->nullable();
-            $table->timestamp('participated_at')->nullable();
+            $table->timestamp('attended_at')->nullable();
 
             $table->timestamps();
 
