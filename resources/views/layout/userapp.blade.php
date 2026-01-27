@@ -112,16 +112,23 @@
       </div>
       <ul class="nav flex-column">
         <li class="nav-item mb-2">
-          <a href="#" class="nav-link d-flex align-items-center ">
-          <span class="iconify me-2" data-icon="mdi:home" style="font-size: 20px;"></span> Dashboard
-          </a>
-        </li>
-        <li class="nav-item mb-2">
-          <a href="#" class="nav-link">
-        <span class="iconify me-2" data-icon="mdi:calendar" style="font-size: 20px;"></span> Absensi
-          </a>
+        <a href="{{ route('user.dashboard') }}" class="nav-link d-flex align-items-center {{ request()->routeIs('user.dashboard') ? 'active' : '' }}">
+            <span class="iconify me-2" data-icon="mdi:home" style="font-size: 20px;"></span> Dashboard
+        </a>
+    </li>
 
-        </li>
+    <li class="nav-item mb-2">
+        <a href="{{ route('user.absensi') }}" class="nav-link {{ request()->routeIs('user.absensi') ? 'active' : '' }}">
+            <span class="iconify me-2" data-icon="mdi:calendar" style="font-size: 20px;"></span> Absensi
+        </a>
+    </li>
+
+    <li class="nav-item mb-2">
+    <a href="{{ route('user.riwayat') }}" class="nav-link {{ request()->routeIs('user.riwayat') ? 'active' : '' }}">
+        <span class="iconify me-2" data-icon="mdi:calendar-check" style="font-size: 20px;"></span> Riwayat Absensi
+    </a>
+</li>
+
         <!-- <li class="nav-item mb-2">
           <a href="#" class="nav-link d-flex align-items-center {{ request()->routeIs('admin.member') ? 'active' : '' }}">
             <span class="iconify me-2" data-icon="mdi:account-group" style="font-size: 20px;"></span> Siswa
@@ -175,9 +182,10 @@
           {{ Auth::user()->name }}
         </div>
 
-        <div class="text-muted small">
-        {{ Auth::user()->member->school->name }}
-        </div>
+       <div class="text-muted small">
+  {{ optional(Auth::user()->member?->school)->name ?? 'Sekolah belum diatur' }}
+</div>
+
         <br>
         <div class="text-muted small">
           {{ Auth::user()->email }}

@@ -16,7 +16,7 @@
     <h2 class="fw-bold mb-0">
       LOMBA CERDAS CERMAT
     </h2>
-
+    <small class="text-muted">Data berdasarkan anggota yang sudah melakukan absensi</small>
   </div>
 </div>
 
@@ -39,7 +39,7 @@
       <h3 class="fw-bold text-success mb-2">{{ $hadir }} Anggota</h3>
       <div class="text-muted mb-2">Persentase ({{ $persenHadir }}%)</div>
       <div class="progress" style="height:6px;">
-        <div class="progress-bar bg-success" style="width: '{{ $persenHadir }}%'"></div>
+        <div class="progress-bar bg-success" style="width: {{ $persenHadir }}%"></div>
       </div>
     </div>
   </div>
@@ -50,7 +50,7 @@
       <h3 class="fw-bold text-danger mb-2">{{ $tidakHadir }} Anggota</h3>
       <div class="text-muted mb-2">Persentase ({{ $persenTidak }}%)</div>
       <div class="progress" style="height:6px;">
-        <div class="progress-bar bg-danger" style="width: '{{ $persenTidak }}%'"></div>
+        <div class="progress-bar bg-danger" style="width: {{ $persenTidak }}%"></div>
       </div>
     </div>
   </div>
@@ -61,8 +61,8 @@
   @foreach($schools as $school)
   @php
     $total = $school->members_count;
-    $hadir = $total; 
-    $tidak = 0; 
+    $hadir = $school->hadir_count ?? 0;
+    $tidak = $school->tidak_hadir_count ?? 0;
     $persen = $total > 0 ? round(($hadir / $total) * 100, 2) : 0;
     $img = $school->photo ?? 'default.png'; 
   @endphp
@@ -105,23 +105,52 @@
   @endforeach
 </div>
 
-<!-- Tabel Daftar Anggota -->
+<!-- Tabel Daftar Anggota (TANPA AJAX - VERSI SIMPLE) -->
 <div class="card shadow-sm mt-4">
-  <div class="card-header fw-bold px-3 pt-3 d-flex" style="background-color: white;">Daftar Kehadiran Anggota</div>
+  <div class="card-header fw-bold px-3 pt-3 d-flex" style="background-color: white;">
+    Daftar Anggota Yang Sudah Absen
+  </div>
   <div class="card-body">
-  <table id="anggotaTable" class="table table-bordered table-striped" style="width:100%">
-    <thead class="table-light">
-      <tr>
-        <th>No</th>
-        <th>Nama Anggota</th>
-        <th>Nama Sekolah</th>
-        <th>Kelas</th>
-        <th>Wilayah</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
+    <table id="anggotaTable" class="table table-bordered table-striped" style="width:100%">
+      <thead class="table-light">
+        <tr>
+          <th>No</th>
+          <th>Nama Anggota</th>
+          <th>Nama Sekolah</th>
+          <th>Kelas</th>
+          <th>Wilayah</th>
+        </tr>
+      </thead>
+      <tbody>
+        @php
+          // Ambil member yang sudah absen
+          $attendedMemberIds = \App\Models\EventParticipant::whereNotNull('attended_at')
+              ->distinct()
+              ->pluck('member_id');
+          
+          $attendedMembers = \App\Models\Member::with(['school', 'class'])
+              ->whereIn('id', $attendedMemberIds)
+              ->get();
+        @endphp
+
+        @forelse($attendedMembers as $index => $member)
+          <tr>
+            <td>{{ $index + 1 }}</td>
+            <td>{{ $member->name }}</td>
+            <td>{{ $member->school->name ?? '-' }}</td>
+            <td>{{ $member->class->name ?? '-' }}</td>
+            <td>{{ $member->school->region ?? '-' }}</td>
+          </tr>
+        @empty
+          <tr>
+            <td colspan="5" class="text-center text-muted py-4">
+              Belum ada anggota yang melakukan absensi
+            </td>
+          </tr>
+        @endforelse
+      </tbody>
+    </table>
+  </div>
 </div>
 
 @endsection
@@ -135,36 +164,21 @@
 
 <script>
 $(document).ready(function() {
+  // Initialize DataTable tanpa AJAX
   $('#anggotaTable').DataTable({
-    ajax: "{{ route('admin.dashboard.member') }}",
-    columns: [
-      { 
-        data: null, 
-        render: function (data, type, row, meta) {
-          return meta.row + 1;
-        },
-        className: 'text-center'
-      },
-      { data: 'name' },
-      { data: 'school.name', defaultContent: '-' },
-      { data: 'class.name', defaultContent: '-' },
-      { data: 'school.region', defaultContent: '-' }
-    ],
     pageLength: 5,
     lengthMenu: [5, 10, 25, 50],
     language: {
-      // search: "Cari:",
-      // lengthMenu: "Tampilkan _MENU_ data",
-      // info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
       paginate: {
         first: "Awal",
         last: "Akhir",
         next: "›",
         previous: "‹"
-      }
+      },
+      emptyTable: "Belum ada anggota yang melakukan absensi",
+      zeroRecords: "Tidak ditemukan data yang sesuai"
     }
   });
 });
 </script>
 @endpush
-

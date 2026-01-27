@@ -13,7 +13,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserAccountController;
 use App\Http\Controllers\DashboardUserController;
 use App\Http\Controllers\EventParticipantController;
-
+use App\Http\Controllers\UserAbsensiController;
+use App\Http\Controllers\RiwayatAbsensiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,4 +97,16 @@ Route::delete('/admin/users_account/{id}', [UserAccountController::class, 'destr
 Route::middleware(['auth:web'])->group(function () {
     Route::get('/user/dashboard', [DashboardUserController::class, 'index'])
         ->name('user.dashboard');
+
+    Route::get('/user/absensi', [UserAbsensiController::class, 'index'])
+        ->name('user.absensi');
+    Route::post('/user/absensi/submit', [UserAbsensiController::class, 'submit'])
+        ->name('user.absensi.submit');
+
+    Route::get('/user/absensi/{eventId}/detail', [UserAbsensiController::class, 'detail'])
+    ->name('user.absensi.detail');
+
+    Route::get('/user/riwayat', [RiwayatAbsensiController::class, 'index'])
+        ->name('user.riwayat');
 });
+
