@@ -133,7 +133,8 @@
               ->get();
         @endphp
 
-        @forelse($attendedMembers as $index => $member)
+        
+          @foreach($attendedMembers as $index => $member)
           <tr>
             <td>{{ $index + 1 }}</td>
             <td>{{ $member->name }}</td>
@@ -141,13 +142,7 @@
             <td>{{ $member->class->name ?? '-' }}</td>
             <td>{{ $member->school->region ?? '-' }}</td>
           </tr>
-        @empty
-          <tr>
-            <td colspan="5" class="text-center text-muted py-4">
-              Belum ada anggota yang melakukan absensi
-            </td>
-          </tr>
-        @endforelse
+          @endforeach
       </tbody>
     </table>
   </div>
