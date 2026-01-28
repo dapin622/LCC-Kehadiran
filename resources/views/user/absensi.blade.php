@@ -177,89 +177,95 @@
         </div>
     @endif
 
-    <!-- Search Section -->
-    <div class="search-section">
-        <div class="row align-items-end">
-            <div class="col-md-12">
-                <label class="form-label fw-semibold">Search</label>
-                <input type="text" id="searchInput" class="form-control" placeholder="Search ...">
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row row-deck row-cards">
+            <div class="col-12">
+              <div id="alertSuccess" class="alert alert-success d-none"></div>
+                <div class="card">
+                    <!-- Search Section -->
+                    <div class="search-section">
+                        <div class="row align-items-end">
+                            <div class="col-md-12">
+                                <label class="form-label">Search</label>
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search ...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table Section -->
+                    <div class="event-table">
+                        <div class="table-responsive p-2">
+                             <table id="absenTable" class="table card-table table-vcenter text-nowrap datatable">
+                                <thead >
+                                    <tr>
+                                        <th class="px-4 py-3">No</th>
+                                        <th class="py-3">Nama Tim</th>
+                                        <th class="py-3">Sekolah</th>
+                                        <th class="py-3">Waktu Mulai</th>
+                                        <th class="py-3">Waktu Selesai</th>
+                                        <th class="py-3">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($events as $index => $event)
+                                        @php
+                                            $participant = $event->participants->first();
+                                            $hasAttended = $participant && $participant->attended_at;
+                                            $isActive = $event->is_attendance_active;
+                                            // Tombol absen aktif selama is_attendance_active = true
+                                            // Tidak peduli sudah lewat attendance_end atau belum
+                                            $canAttend = $isActive && !$hasAttended;
+                                        @endphp
+                                        <tr>
+                                            <td class="px-4">{{ $index + 1 }}</td>
+                                            <td>{{ $event->team->name }}</td>
+                                            <td>{{ $event->school->name }}</td>
+                                            <td>{{ $event->start_date->format('d-m-Y H:i') }}</td>
+                                            <td>{{ $event->end_date->format('d-m-Y H:i') }}</td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    @if($hasAttended)
+                                                        <span class="badge-status badge-hadir">
+                                                            <i class="bi bi-check-circle"></i> Sudah Absen
+                                                        </span>
+                                                    @else
+                                                        <button 
+                                                            class="btn-absen" 
+                                                            @if(!$canAttend) disabled @endif
+                                                            onclick="showAbsenModal({{ $event->id }}, '{{ $event->attendance_token }}', '{{ $event->start_date->format('d-m-Y H:i') }}', '{{ $event->end_date->format('d-m-Y H:i') }}')"
+                                                        >
+                                                            Absen
+                                                        </button>
+                                                    @endif
+                                                    <button class="btn-detail" onclick="showDetailModal({{ $event->id }})">
+                                                        Detail
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5 text-muted">
+                                                <p class="mt-2 mb-0">Tidak ada event yang tersedia</p>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                   
+                    </div>
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- Table Section -->
-    <div class="event-table">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" id="eventTable">
-                <thead style="background-color: #f8f9fa;">
-                    <tr>
-                        <th class="px-4 py-3">No</th>
-                        <th class="py-3">Nama Tim</th>
-                        <th class="py-3">Sekolah</th>
-                        <th class="py-3">Waktu Mulai</th>
-                        <th class="py-3">Waktu Selesai</th>
-                        <th class="py-3">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($events as $index => $event)
-                        @php
-                            $participant = $event->participants->first();
-                            $hasAttended = $participant && $participant->attended_at;
-                            $isActive = $event->is_attendance_active;
-                            // Tombol absen aktif selama is_attendance_active = true
-                            // Tidak peduli sudah lewat attendance_end atau belum
-                            $canAttend = $isActive && !$hasAttended;
-                        @endphp
-                        <tr>
-                            <td class="px-4">{{ $index + 1 }}</td>
-                            <td>{{ $event->team->name }}</td>
-                            <td>{{ $event->school->name }}</td>
-                            <td>{{ $event->start_date->format('d-m-Y H:i') }}</td>
-                            <td>{{ $event->end_date->format('d-m-Y H:i') }}</td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    @if($hasAttended)
-                                        <span class="badge-status badge-hadir">
-                                            <i class="bi bi-check-circle"></i> Sudah Absen
-                                        </span>
-                                    @else
-                                        <button 
-                                            class="btn-absen" 
-                                            @if(!$canAttend) disabled @endif
-                                            onclick="showAbsenModal({{ $event->id }}, '{{ $event->attendance_token }}', '{{ $event->start_date->format('d-m-Y H:i') }}', '{{ $event->end_date->format('d-m-Y H:i') }}')"
-                                        >
-                                            Absen
-                                        </button>
-                                    @endif
-                                    <button class="btn-detail" onclick="showDetailModal({{ $event->id }})">
-                                        Detail
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">
-                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
-                                <p class="mt-2 mb-0">Tidak ada event yang tersedia</p>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Showing entries info -->
-    @if($events->count() > 0)
-        <div class="mt-3">
-            <div class="text-muted small">
-                Menampilkan {{ $events->count() }} event
-            </div>
-        </div>
-    @endif
 </div>
+
 
 <!-- Modal Absen -->
 <div class="modal fade" id="absenModal" tabindex="-1">
@@ -460,22 +466,16 @@ $.ajaxSetup({
 
 $(document).ready(function() {
     // Initialize DataTable
-    var table = $('#eventTable').DataTable({
+    var table = $('#absenTable').DataTable({
         searching: true,
         paging: true,
-        info: false,
-        lengthChange: false,
+        info: true,
+        lengthChange: true,
         pageLength: 10,
-        dom: 'rtip',
+        dom: 'lrtip',
         language: {
             emptyTable: "Tidak ada event yang tersedia",
             zeroRecords: "Tidak ditemukan event yang sesuai",
-            paginate: {
-                first: "Pertama",
-                last: "Terakhir",
-                next: "Selanjutnya",
-                previous: "Sebelumnya"
-            }
         },
         columnDefs: [
             { targets: '_all', className: 'text-start' },
