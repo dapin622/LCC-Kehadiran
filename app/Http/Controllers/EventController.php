@@ -25,6 +25,7 @@ class EventController extends Controller
             'school_id' => 'required|exists:schools,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'description' => 'nullable|string|max:1000',
             
             'attendance_token' => 'nullable|string|max:100',
             'attendance_start' => 'nullable|date',
@@ -41,6 +42,7 @@ class EventController extends Controller
             'school_id'  => $request->school_id,
             'start_date' => $request->start_date,
             'end_date'   => $request->end_date,
+            'description' => $request->description,
 
             'attendance_token' => $request->attendance_token,
             'attendance_start' => $request->attendance_start,
@@ -60,6 +62,7 @@ class EventController extends Controller
                 'school' => $event->school,
                 'start_date' => $event->start_date->format('d-m-Y H:i'),
                 'end_date'   => $event->end_date->format('d-m-Y H:i'),
+                'description' => $event->description,
 
                 'start_date_input' => $event->start_date->format('Y-m-d\TH:i'),
                 'end_date_input'   => $event->end_date->format('Y-m-d\TH:i'),
@@ -82,6 +85,7 @@ class EventController extends Controller
             'school_id' => 'required|exists:schools,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'description' => 'nullable|string|max:1000',
 
             'attendance_token' => 'nullable|string|max:100',
             'attendance_start' => 'nullable|date',
@@ -99,6 +103,7 @@ class EventController extends Controller
             'school_id'  => $request->school_id,
             'start_date' => $request->start_date,
             'end_date'   => $request->end_date,
+            'description' => $request->description,
 
             'attendance_token' => $request->attendance_token,
             'attendance_start' => $request->attendance_start,
@@ -118,6 +123,7 @@ class EventController extends Controller
                 'school' => $event->school,
                 'start_date' => $event->start_date->format('d-m-Y H:i'),
                 'end_date'   => $event->end_date->format('d-m-Y H:i'),
+                'description' => $event->description,
 
                 'start_date_input' => $event->start_date->format('Y-m-d\TH:i'),
                 'end_date_input'   => $event->end_date->format('Y-m-d\TH:i'),

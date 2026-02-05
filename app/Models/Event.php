@@ -11,6 +11,7 @@ class Event extends Model
         'school_id',
         'start_date',
         'end_date',
+        'description',
 
         'attendance_token',
         'attendance_start',

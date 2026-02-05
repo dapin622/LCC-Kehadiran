@@ -154,6 +154,13 @@
         transform: translateY(-1px);
         color: white;
     }
+    #absenTable td:nth-child(6) {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
 </style>
 
 <div class="container-xl">
@@ -204,6 +211,7 @@
                                         <th class="py-3">Sekolah</th>
                                         <th class="py-3">Waktu Mulai</th>
                                         <th class="py-3">Waktu Selesai</th>
+                                        <th class="py-3">Keterangan</th>
                                         <th class="py-3">Aksi</th>
                                     </tr>
                                 </thead>
@@ -223,6 +231,10 @@
                                             <td>{{ $event->school->name }}</td>
                                             <td>{{ $event->start_date->format('d-m-Y H:i') }}</td>
                                             <td>{{ $event->end_date->format('d-m-Y H:i') }}</td>
+                                            <td title="{{ $event->description }}">
+                                                {{ \Illuminate\Support\Str::limit($event->description, 40, '...') }}
+                                            </td>
+
                                             <td>
                                                 <div class="d-flex align-items-center gap-2">
                                                     @if($hasAttended)

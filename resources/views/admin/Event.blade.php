@@ -10,6 +10,12 @@
     .alert-danger li {
         margin-left: 0;
     }
+    #eventTable td:nth-child(6) {
+        max-width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
     
 </style>
 
@@ -110,6 +116,7 @@
                                         <th>Sekolah</th>
                                         <th>Waktu Mulai</th>
                                         <th>Waktu Selesai</th>
+                                        <th>Keterangan</th>
                                         <th style="width:150px;">Aksi</th>
                                     </tr>
                                 </thead>
@@ -122,6 +129,7 @@
                                     <td>{{ $event->school->name }}</td>
                                     <td>{{ $event->start_date->format('d-m-Y H:i') }}</td>
                                     <td>{{ $event->end_date->format('d-m-Y H:i') }}</td>
+                                    <td>{{ \Illuminate\Support\Str::limit($event->description, 50, '...') }}</td>
                                     <td>
                                         <button 
                                             class="btn btn-warning btn-sm editBtn"
@@ -130,6 +138,7 @@
                                             data-school="{{ $event->school_id }}"
                                             data-start="{{ $event->start_date->format('Y-m-d\TH:i') }}"
                                             data-end="{{ $event->end_date->format('Y-m-d\TH:i') }}"
+                                            data-description="{{ $event->description }}"
                                             data-token="{{ $event->attendance_token }}"
                                             data-absen-start="{{ optional($event->attendance_start)->format('Y-m-d\TH:i') }}"
                                             data-absen-end="{{ optional($event->attendance_end)->format('Y-m-d\TH:i') }}"
@@ -151,12 +160,18 @@
                                         <button 
                                             class="btn btn-success btn-sm absenBtn"
                                             data-id="{{ $event->id }}"
+                                            data-name="{{ $event->name }}"
+                                            data-team="{{ $event->team->name }}"
+                                            data-school="{{ $event->school->name }}"
+                                            data-start="{{ $event->start_date->format('d-m-Y H:i') }}"
+                                            data-end="{{ $event->end_date->format('d-m-Y H:i') }}"
+                                            data-description="{{ $event->description }}"
                                             data-token="{{ $event->attendance_token }}"
                                             data-absen-start="{{ optional($event->attendance_start)->format('Y-m-d\TH:i') }}"
                                             data-absen-end="{{ optional($event->attendance_end)->format('Y-m-d\TH:i') }}"
                                             data-active="{{ $event->is_attendance_active }}"
                                         >
-                                            <i class="bi bi-info-circle"></i> Info Absen
+                                            <i class="bi bi-info-circle"></i> Info Event
                                         </button>
 
                                     </td>
@@ -237,6 +252,13 @@
 
           </div>
 
+        <div class="mb-3">
+            <label class="form-label">Keterangan Event</label>
+            <textarea name="description" class="form-control" rows="3"
+                placeholder="Contoh: Babak penyisihan lomba cerdas cermat"></textarea>
+        </div>
+
+
           <hr>
             <h5>Pengaturan Absensi</h5>
 
@@ -300,12 +322,33 @@
     <div class="modal-content">
 
       <div class="modal-header">
-        <h5 class="modal-title">Pengaturan Absensi Event</h5>
+        <h5 class="modal-title">Detail Event & Absensi</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
       <div class="modal-body">
 
+        <h6 class="fw-bold">Informasi Event</h6>
+        <div class="mb-2">
+            <strong>Tim:</strong>
+            <div id="ViewTeam"></div>
+        </div>
+        <div class="mb-2">
+            <strong>Sekolah:</strong>
+            <div id="ViewSchool"></div>
+        </div>
+        <div class="mb-2">
+            <strong>Waktu:</strong>
+            <div id="ViewDateTime"></div>
+        </div>
+        <div class="mb-2">
+            <strong>Keterangan:</strong>
+            <div id="ViewDescription"></div>
+        </div>
+
+        <hr>
+
+        <h6 class="fw-bold">Informasi Absensi</h6>
         <div class="mb-2">
             <strong>Token Absensi:</strong>
             <div id="viewToken"></div>
@@ -439,6 +482,12 @@
             <div class="invalid-feedback" id="editEndDateError"></div>
 
           </div>
+
+        <div class="mb-3">
+            <label class="form-label">Keterangan Event</label>
+            <textarea name="description" id="editDescription" class="form-control" rows="3"></textarea>
+        </div>
+
 
            <hr>
             <h5>Pengaturan Absensi</h5>
@@ -677,6 +726,7 @@ $(document).ready(function(){
                     event.school.name,
                     event.start_date,
                     event.end_date,
+                    event.description ? event.description.substring(0, 50) + '...': '-',
                     `
                     <button class="btn btn-warning btn-sm editBtn"
                         data-id="${event.id}"
@@ -684,6 +734,7 @@ $(document).ready(function(){
                         data-school="${event.school_id}"
                         data-start="${event.start_date_input}"
                         data-end="${event.end_date_input}"
+                        data-description="${event.description}"
                         data-token="${event.attendance_token}"
                         data-absen-start="${event.attendance_start_input}"
                         data-absen-end="${event.attendance_end_input}"
@@ -707,6 +758,12 @@ $(document).ready(function(){
                     <button 
                         class="btn btn-success btn-sm absenBtn"
                         data-id="${event.id}"
+                        data-name="${event.name}"
+                        data-team="${event.team.name}"
+                        data-school="${event.school.name}"
+                        data-start="${event.start_date_input}"
+                        data-end="${event.end_date_input}"
+                        data-description="${event.description}"
                         data-token="${event.attendance_token}"
                         data-absen-start="${event.attendance_start_input}"
                         data-absen-end="${event.attendance_end_input}"
@@ -763,15 +820,27 @@ $(document).ready(function(){
 $(document).on('click', '.absenBtn', function () {
 
     let token  = $(this).data('token');
-    let start  = $(this).data('absen-start');
-    let end    = $(this).data('absen-end');
+    let absenstart  = $(this).data('absen-start');
+    let absenend    = $(this).data('absen-end');
+    let start  = $(this).data('start');
+    let end    = $(this).data('end');
     let active = $(this).data('active');
 
-    $('#viewToken').text(token ?? '-');
-    $('#viewTime').html(
+    $('#ViewTeam').text($(this).data('team'));
+    $('#ViewSchool').text($(this).data('school'));
+     $('#ViewDateTime').html(
         start && end
             ? `<p class="mb-1">Mulai : ${formatTimeNoT(start)}</p>
             <p class="mb-0">Selesai : ${formatTimeNoT(end)}</p>`
+            : '-'
+    );
+    $('#ViewDescription').text($(this).data('description'));
+    
+    $('#viewToken').text(token ?? '-');
+    $('#viewTime').html(
+        absenstart && absenend
+            ? `<p class="mb-1">Mulai : ${formatTimeNoT(absenstart)}</p>
+            <p class="mb-0">Selesai : ${formatTimeNoT(absenend)}</p>`
             : '-'
     );
 
@@ -997,6 +1066,7 @@ $('#addTeamBtn').click(function () {
     $('#editSchoolId').val($(this).data('school'));
     $('#editStartDate').val($(this).data('start'));
     $('#editEndDate').val($(this).data('end'));
+    $('#editDescription').val($(this).data('description'));
 
     $('#editToken').val($(this).data('token'));
     $('#editAbsenStart').val($(this).data('absen-start'));
@@ -1073,6 +1143,7 @@ $('#addTeamBtn').click(function () {
                 event.school.name,
                 event.start_date,
                 event.end_date,
+                event.description ? event.description.substring(0, 50) + '...': '-',
                 `
                 <button class="btn btn-warning btn-sm editBtn"
                     data-id="${event.id}"
@@ -1080,6 +1151,7 @@ $('#addTeamBtn').click(function () {
                     data-school="${event.school_id}"
                     data-start="${event.start_date_input}"
                     data-end="${event.end_date_input}"
+                    data-description="${event.description}"
                     data-token="${event.attendance_token}"
                     data-absen-start="${event.attendance_start_input}"
                     data-absen-end="${event.attendance_end_input}"
@@ -1103,6 +1175,12 @@ $('#addTeamBtn').click(function () {
                  <button 
                     class="btn btn-success btn-sm absenBtn"
                     data-id="${event.id}"
+                    data-name="${event.name}"
+                    data-team="${event.team.name}"
+                    data-school="${event.school.name}"
+                    data-start="${event.start_date_input}"
+                    data-end="${event.end_date_input}"
+                    data-description="${event.description}"
                     data-token="${event.attendance_token}"
                     data-absen-start="${event.attendance_start_input}"
                     data-absen-end="${event.attendance_end_input}"

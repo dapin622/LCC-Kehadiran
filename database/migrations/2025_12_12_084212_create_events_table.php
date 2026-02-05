@@ -17,8 +17,8 @@ return new class extends Migration
             $table->unsignedBigInteger('school_id');
             $table->dateTime('start_date');
             $table->dateTime('end_date');
-
-             $table->string('attendance_token')->nullable();
+            $table->text('description')->nullable();
+            $table->string('attendance_token')->nullable();
             // $table->decimal('latitude', 10, 7)->nullable();
             // $table->decimal('longitude', 10, 7)->nullable();
             // $table->integer('radius')->nullable(); 
