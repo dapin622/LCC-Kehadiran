@@ -280,11 +280,21 @@
                             <i class="bi bi-building"></i>
                             <span>{{ optional($attendance->event->school)->name ?? optional($member->school)->name ?? '-' }}</span>
                         </div>
-                        
-                        <div class="detail-item">
+
+                        @if($attendance->event && $attendance->event->description)
+                        <div class="detail-item detail-description"
+                            title="{{ $attendance->event->description }}">
+                            <i class="bi bi-card-text"></i>
+                            <span>
+                                {{ \Illuminate\Support\Str::limit($attendance->event->description, 120, '...') }}
+                            </span>
+                        </div>
+                        @endif
+
+                        <!-- <div class="detail-item">
                             <i class="bi bi-key-fill"></i>
                             <span>Token: {{ $attendance->event->attendance_token ?? '-' }}</span>
-                        </div>
+                        </div> -->
                         
                         @if($attendance->event && $attendance->event->attendance_start)
                         <div class="detail-item">
