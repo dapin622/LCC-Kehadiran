@@ -25,7 +25,6 @@ class UserAbsensiController extends Controller
                 ->with('error', 'Data member tidak valid.');
         }
 
-        // Ambil event yang sesuai dengan team dan school member
         $events = Event::where('team_id', $member->team_id)
             ->where('school_id', $member->school_id)
             ->with([
@@ -44,7 +43,7 @@ class UserAbsensiController extends Controller
                 EventParticipant::create([
                     'event_id' => $event->id,
                     'member_id' => $member->id,
-                    'status' => 'tidak_hadir', // Default status
+                    'status' => 'tidak_hadir', 
                     'attended_at' => null,
                 ]);
                 
@@ -76,13 +75,18 @@ class UserAbsensiController extends Controller
         $event = Event::findOrFail($request->event_id);
 
         // Cek apakah absensi sudah ditutup oleh admin
-        if (!$event->is_attendance_active) {
-            return back()->with('error', 'Absensi sudah ditutup.');
+         if (!$event->is_attendance_active) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Absensi sudah ditutup.'
+        ]);
         }
 
-        // Validasi token
         if ($request->token !== $event->attendance_token) {
-            return back()->with('error', 'Token absensi salah.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Token absensi salah.'
+            ]);
         }
 
         // Cari atau buat participant
@@ -91,7 +95,6 @@ class UserAbsensiController extends Controller
             ->first();
 
         if (!$participant) {
-            // Auto-create participant jika belum ada
             $participant = EventParticipant::create([
                 'event_id' => $event->id,
                 'member_id' => $member->id,
@@ -100,12 +103,10 @@ class UserAbsensiController extends Controller
             ]);
         }
 
-        // Cek apakah sudah absen
         if ($participant->attended_at) {
             return back()->with('error', 'Anda sudah melakukan absensi.');
         }
 
-        // ===== LOGIKA STATUS ABSENSI =====
         
         // Jika user memilih status "izin"
         if ($request->status === 'izin') {
@@ -114,30 +115,35 @@ class UserAbsensiController extends Controller
                 'attended_at' => now(),
             ]);
 
-            return back()->with('success', 'Status izin berhasil dicatat.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Status izin berhasil dicatat.'
+            ]);
         }
 
-        // Jika user tidak memilih izin, cek waktu absensi
         $now = now();
         
-        // Cek apakah melebihi waktu absensi (terlambat)
-        // Meskipun terlambat, masih bisa absen selama is_attendance_active = true
         if ($event->attendance_end && $now->gt($event->attendance_end)) {
             $participant->update([
                 'status' => 'terlambat',
                 'attended_at' => now(),
             ]);
 
-            return back()->with('success', 'Absensi tercatat sebagai terlambat.');
+             return response()->json([
+                'success' => true,
+                'message' => 'Absensi tercatat sebagai terlambat.'
+            ]);
         }
 
-        // Jika tepat waktu
         $participant->update([
             'status' => 'hadir',
             'attended_at' => now(),
         ]);
 
-        return back()->with('success', 'Absensi berhasil, Anda hadir tepat waktu.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Absensi berhasil, Anda hadir tepat waktu.'
+        ]);
     }
 
     public function detail($eventId)
@@ -162,31 +168,40 @@ class UserAbsensiController extends Controller
             ], 404);
         }
 
-        // Ambil participant
         $participant = EventParticipant::where('event_id', $event->id)
             ->where('member_id', $member->id)
             ->first();
 
         // Tentukan status berdasarkan kondisi
-        $status = 'tidak_hadir'; // default
+        $status = 'tidak_hadir';
         $attendedTime = null;
+        $attendedRaw = null;
 
         if ($participant && $participant->attended_at) {
-            // Sudah absen, gunakan status dari database
-            $status = $participant->status;
+
             $attendedTime = $participant->attended_at->format('H:i');
+            $attendedRaw = $participant->attended_at->toIso8601String();
+
+            if ($participant->status === 'izin') {
+                $status = 'izin';
+            } 
+            else {
+                if ($event->attendance_end && $participant->attended_at->gt($event->attendance_end)) {
+                    $status = 'terlambat';
+                } else {
+                    $status = 'hadir';
+                }
+            }
+
         } else {
-            // Belum absen
+
             if ($event->is_attendance_active) {
-                // Absensi masih aktif → Belum Absen
                 $status = 'belum_absen';
             } else {
-                // Absensi sudah ditutup → Tidak Hadir
                 $status = 'tidak_hadir';
             }
         }
 
-        // Prepare data
         $data = [
             'event_name' => $event->team->name ?? 'Event',
             'start_time' => $event->start_date ? $event->start_date->format('d-m-Y H:i') : '-',
@@ -194,6 +209,8 @@ class UserAbsensiController extends Controller
             'token' => $event->attendance_token ?? '-',
             'status' => $status,
             'attended_time' => $attendedTime,
+            'attended_time_raw' => $attendedRaw,
+            'attendance_end_raw' => optional($event->attendance_end)->toIso8601String(),
         ];
 
         return response()->json([

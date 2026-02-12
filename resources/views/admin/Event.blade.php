@@ -769,7 +769,7 @@ $(document).ready(function(){
                         data-absen-end="${event.attendance_end_input}"
                         data-active="${event.is_attendance_active}"
                     >
-                        <i class="bi bi-info-circle"></i> Info Absen
+                        <i class="bi bi-info-circle"></i> Info Event
                     </button>
                     `
                 ]).draw(false);
@@ -1186,7 +1186,7 @@ $('#addTeamBtn').click(function () {
                     data-absen-end="${event.attendance_end_input}"
                     data-active="${event.is_attendance_active}"
                 >
-                    <i class="bi bi-info-circle"></i> Info Absen
+                    <i class="bi bi-info-circle"></i> Info Event
                 </button>
                 `
             ]).draw(false);

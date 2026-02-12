@@ -17,6 +17,20 @@ class EventParticipantController extends Controller
             }])
             ->get();
 
+            if (now()->greaterThan($event->end_date)) {
+
+            foreach ($members as $member) {
+                foreach ($member->participants as $participant) {
+
+                    if ($participant->attendance_status === 'belum_absen') {
+                        $participant->update([
+                            'attendance_status' => 'tidak_hadir'
+                        ]);
+                    }
+                }
+            }
+        }
+
         return view('admin.event_participant', compact('event', 'members'));
     }
 }

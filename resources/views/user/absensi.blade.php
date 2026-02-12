@@ -241,10 +241,14 @@
                                                         <span class="badge-status badge-hadir">
                                                             <i class="bi bi-check-circle"></i> Sudah Absen
                                                         </span>
+                                                     @elseif(!$isActive)
+                                                        <button class="btn-absen" disabled>
+                                                            Absen Belum Dibuka
+                                                        </button>
+
                                                     @else
                                                         <button 
-                                                            class="btn-absen" 
-                                                            @if(!$canAttend) disabled @endif
+                                                            class="btn-absen"
                                                             onclick="showAbsenModal({{ $event->id }}, '{{ $event->attendance_token }}', '{{ $event->start_date->format('d-m-Y H:i') }}', '{{ $event->end_date->format('d-m-Y H:i') }}')"
                                                         >
                                                             Absen
@@ -288,6 +292,8 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body" style="padding: 1rem 1.5rem 1.5rem;">
+                <div id="modalAlert" class="alert d-none" role="alert"></div>
+
                 <form id="absenForm" action="{{ route('user.absensi.submit') }}" method="POST">
                     @csrf
                     <input type="hidden" name="event_id" id="eventId">
@@ -503,35 +509,93 @@ $(document).ready(function() {
         }
     });
 
-    // Search functionality
     $('#searchInput').on('keyup', function() {
         table.search(this.value).draw();
     });
 
-    // Auto dismiss alerts
     setTimeout(function() {
         $('.alert').fadeOut('slow');
     }, 5000);
 
     // Refresh CSRF token setiap modal dibuka (prevent 419 error)
     $('#absenModal').on('show.bs.modal', function() {
-        // Ambil CSRF token terbaru dari meta tag
         var token = $('meta[name="csrf-token"]').attr('content');
         $('input[name="_token"]').val(token);
+
+         $('#modalAlert')
+        .addClass('d-none')
+        .removeClass('alert-success alert-danger')
+        .text('');
     });
 
-    // Handle form submit dengan validasi
     $('#absenForm').on('submit', function(e) {
-        var token = $('#tokenInput').val().trim();
-        
-        if (!token) {
-            e.preventDefault();
-            alert('Token absensi harus diisi!');
-            return false;
-        }
-        
-        // Form akan submit normal dengan CSRF token yang fresh
-        return true;
+        e.preventDefault(); 
+
+        let formData = $(this).serialize();
+
+        $.ajax({
+            url: $(this).attr('action'),
+            method: "POST",
+            data: formData,
+            success: function(response) {
+
+                    if (response.success) {
+
+                    $('#absenModal').modal('hide');
+
+                    $('#alertSuccess')
+                        .removeClass('d-none')
+                        .addClass('alert-success')
+                        .text(response.message)
+                        .fadeIn();
+
+                    setTimeout(function() {
+                        $('#alertSuccess').fadeOut(function() {
+                            $(this).addClass('d-none').text('');
+                        });
+                    }, 3000);
+
+                    setTimeout(function() {
+                        location.reload();
+                    }, 2500);
+
+                } else {
+
+                    if (
+                        response.message === 'Absensi sudah ditutup.' ||
+                        response.message === 'Token absensi salah.'
+                    ) {
+
+                        $('#modalAlert')
+                            .removeClass('d-none alert-success')
+                            .addClass('alert-danger')
+                            .text(response.message)
+                            .fadeIn();
+
+                        setTimeout(function() {
+                            $('#modalAlert').fadeOut(function() {
+                                $(this).addClass('d-none').text('');
+                            });
+                        }, 3000);
+
+                    }
+                }
+            },
+            error: function(xhr) {
+
+                let message = "Terjadi kesalahan.";
+
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    message = xhr.responseJSON.message;
+                }
+
+                $('#modalAlert')
+                    .removeClass('d-none alert-success')
+                    .addClass('alert-danger')
+                    .text(message)
+                    .fadeIn();
+            }
+        });
     });
 });
 
@@ -540,8 +604,8 @@ function showAbsenModal(eventId, token, startTime, endTime) {
     $('#eventToken').text(token);
     $('#eventStartTime').text(startTime);
     $('#eventEndTime').text(endTime);
-    $('#tokenInput').val(''); // Clear previous input
-    $('select[name="status"]').val(''); // Reset status dropdown
+    $('#tokenInput').val(''); 
+    $('select[name="status"]').val(''); 
     $('#absenModal').modal('show');
 }
 
@@ -556,33 +620,33 @@ function showDetailModal(eventId) {
             if (response.success) {
                 const data = response.data;
                 
-                // Tentukan status class dan text
                 let statusClass = '';
                 let statusText = '';
-                switch(data.status) {
-                    case 'hadir':
-                        statusClass = 'status-hadir-text';
-                        statusText = 'Hadir';
-                        break;
-                    case 'terlambat':
+
+                if (data.status === 'izin') {
+                    statusClass = 'status-izin-text';
+                    statusText = 'Izin';
+                }
+
+                else if (data.status === 'tidak_hadir') {
+                    statusClass = 'status-tidak-hadir-text';
+                    statusText = 'Tidak Hadir';
+                }
+
+                else if (data.attended_time && data.attendance_end_raw) {
+
+                    if (new Date(data.attended_time_raw) > new Date(data.attendance_end_raw)) {
                         statusClass = 'status-terlambat-text';
                         statusText = 'Terlambat';
-                        break;
-                    case 'izin':
-                        statusClass = 'status-izin-text';
-                        statusText = 'Izin';
-                        break;
-                    case 'belum_absen':
-                        statusClass = 'status-belum-absen-text';
-                        statusText = 'Belum Absen';
-                        break;
-                    case 'tidak_hadir':
-                        statusClass = 'status-tidak-hadir-text';
-                        statusText = 'Tidak Hadir';
-                        break;
-                    default:
-                        statusClass = 'status-belum-absen-text';
-                        statusText = 'Belum Absen';
+                    } else {
+                        statusClass = 'status-hadir-text';
+                        statusText = 'Hadir';
+                    }
+                }
+
+                else {
+                    statusClass = 'status-belum-absen-text';
+                    statusText = 'Belum Absen';
                 }
                 
                 let html = `

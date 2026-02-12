@@ -223,34 +223,43 @@
         
         @if($attendances && $attendances->count() > 0)
             @foreach($attendances as $attendance)
-                @php
-                    $statusClass = '';
-                    $statusText = '';
-                    
-                    switch($attendance->status) {
-                        case 'hadir':
-                            $statusClass = 'hadir';
-                            $statusText = 'Hadir';
-                            break;
-                        case 'terlambat':
-                            $statusClass = 'terlambat';
-                            $statusText = 'Terlambat';
-                            break;
-                        case 'tidak_hadir':
-                            $statusClass = 'tidak_hadir';
-                            $statusText = 'Tidak Hadir';
-                            break;
-                        case 'izin':
+               @php
+                        $statusClass = '';
+                        $statusText = '';
+
+                        $event = $attendance->event;
+
+                        if ($attendance->status === 'izin') {
                             $statusClass = 'izin';
                             $statusText = 'Izin';
-                            break;
-                        default:
-                            $statusClass = 'hadir';
-                            $statusText = 'Hadir';
-                    }
-                @endphp
+                        }
+
+                        elseif ($attendance->status === 'tidak_hadir') {
+                            $statusClass = 'tidak_hadir';
+                            $statusText = 'Tidak Hadir';
+                        }
+
+                        elseif ($attendance->attended_at && $event && $event->attendance_end) {
+
+                            if ($attendance->attended_at->greaterThan($event->attendance_end)) {
+                                $statusClass = 'terlambat';
+                                $statusText = 'Terlambat';
+                            } else {
+                                $statusClass = 'hadir';
+                                $statusText = 'Hadir';
+                            }
+
+                        }
+
+                        else {
+                            $statusClass = 'tidak_hadir';
+                            $statusText = 'Tidak Hadir';
+                        }
+                    @endphp
+
+
                 
-                <div class="absensi-item status-{{ $attendance->status }}">
+                <div class="absensi-item status-{{ $statusClass }}">
                     <div class="absensi-header">
                         <div>
                             <div class="absensi-title">

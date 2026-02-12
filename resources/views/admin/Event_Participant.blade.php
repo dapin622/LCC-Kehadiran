@@ -82,19 +82,18 @@
                             <div class="form-label">Search</div>
                             <input type="text" id="globalSearch" class="form-control" placeholder="Search sekolah..."/>
                         </div>
-                        <div class="w-100 me-2">
-                            <div class="form-label">Hadir</div>
-                            <select id="filterHadir" class="form-select">
-                              
+                       <div class="w-100 me-2">
+                            <div class="form-label">Status Kehadiran</div>
+                            <select id="filterStatus" class="form-select">
+                                <option value="">Semua</option>
+                                <option value="Hadir">Hadir</option>
+                                <option value="Terlambat">Terlambat</option>
+                                <option value="Izin">Izin</option>
+                                <option value="Tidak Hadir">Tidak Hadir</option>
+                                <option value="Belum Absen">Belum Absen</option>
                             </select>
                         </div>
-                        
-                        <div class="w-100">
-                            <div class="form-label">Tidak Hadir</div>
-                            <select id="filterTidakHadir" class="form-select">
-                                
-                            </select>
-                        </div>
+
                     </div>
 
                         <div class="table-responsive p-2">
@@ -118,6 +117,10 @@
                                         @php
                                             $participant = $member->participants->first();
                                             $status = $participant->attendance_status;
+
+                                            if ($status === 'belum_absen' && now()->greaterThan($event->end_date)) {
+                                                $status = 'tidak_hadir';
+                                            }
                                         @endphp
 
                                         @if($status === 'hadir')
@@ -131,6 +134,9 @@
 
                                         @elseif($status === 'tidak_hadir')
                                             <span class="badge bg-danger">Tidak Hadir</span>
+
+                                        @elseif($status === 'belum_absen')
+                                            <span class="badge bg-secondary">Belum Absen</span>
                                         @endif
 
                                         @if($participant->attended_at)
@@ -185,12 +191,16 @@ $(document).ready(function(){
         table.search(this.value).draw();
     });
 
-    $('#filterHadir').on('change', function () {
-        table.column(2).search(this.value).draw();
-    });
+    $('#filterStatus').on('change', function () {
+        var value = this.value;
 
-    $("#filterTidakHadir").on("change", function() {
-        table.column(3).search(this.value).draw();
+        if (value) {
+            table.column(2)
+                .search('^' + value, true, false)
+                .draw();
+        } else {
+            table.column(2).search('').draw();
+        }
     });
 
     
